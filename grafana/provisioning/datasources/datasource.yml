@@ -48,7 +48,7 @@ datasources:
     type: prometheus
     access: proxy
     orgId: 1
-    url: http://10.10.102.2:9100
+    url: http://prometheus:9100
     password:
     # <string> database user, if used
     user:
