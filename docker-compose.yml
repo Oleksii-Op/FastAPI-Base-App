@@ -24,6 +24,7 @@ services:
       interval: 15s
       timeout: 10s
       retries: 10
+#    oom_kill_disable: true
     networks:
       pg-admin-network:
         ipv4_address: 10.10.101.3
@@ -43,6 +44,7 @@ services:
     volumes:
       - ./nginx/nginx.conf:/etc/nginx/nginx.conf
       - ./nginx/ssl/:/etc/nginx/ssl/
+      - ./nginx/html/:/usr/share/nginx/html/
     depends_on:
       - app
     logging:
@@ -58,10 +60,10 @@ services:
 
 # Do not change "app" name as it is used by nginx
   app:
-#    build:
-#      context: ./fastapi-application
-#      dockerfile: Dockerfile
-    image: test01
+    build:
+      context: ./fastapi-application
+      dockerfile: Dockerfile
+    #image: multiapp:0.1
     restart: unless-stopped
     container_name: app
     # Use command below for the first run for running migrations
@@ -71,12 +73,18 @@ services:
       APP_CONFIG__DB__URL: postgresql+asyncpg://main:supersecret@pg:5432/shop
       # APP_CONFIG__DB__ECHO=1 will output SQLAlchemy queries to logs,
       # set APP_CONFIG__DB__ECHO=0 for production to avoid unnecessary logs
-      APP_CONFIG__DB__ECHO: 1
+      APP_CONFIG__DB__ECHO: 0
       APP_CONFIG__ACCESS_TOKEN__RESET_PASSWORD_TOKEN_SECRET: d270a3414c9c5de52047bf51914f51b46eb3518b62a7448d418d29406de81c2d
       APP_CONFIG__ACCESS_TOKEN__VERIFICATION_TOKEN_SECRET: f1cbb46d52e6ab73802d9021155a77d5828838730a08d407fd2c7ec59740dc3b
       # FastAPI superuser email and password
       APP_CONFIG__DEFAULT_EMAIL: "admin@admin.com"
       APP_CONFIG__DEFAULT_PASSWORD: "123"
+      APP_CONFIG__SMTP_SERVICE__HOST: http://10.10.103.10
+      APP_CONFIG__SMTP_SERVICE__PORT: 8050
+      APP_CONFIG__SMTP_SERVICE__ENDPOINT: /send/verifytoken
+    links:
+      # Extra aliases for DNS
+      - "pg:database"
     depends_on:
       pg:
         condition: service_started
@@ -94,27 +102,28 @@ services:
         ipv4_address: 10.10.105.3
 
 
-#  smtp:
-#    build:
-#      context: ./smtp_application
-#      dockerfile: ...
-#    restart: on-failure
-#    container_name: smtp-server
-#    environment:
-#      GOOGLE__CREDENTIALS__EMAIL: ...
-#      GOOGLE__CREDENTIALS__PASSWORD: ...
-#    depends_on:
-#      - app
-#    ports:
-#      - "8050"
-#    logging:
-#      driver: "json-file"
-#      options:
-#        max-file: "1"
-#        max-size: "100k"
-#    networks:
-#      example-network:
-#        ipv4_address: 10.10.100.70
+  smtp:
+    build:
+      context: ./smtp_application
+      dockerfile: ./Dockerfile
+    restart: on-failure
+    container_name: smtp-server
+    environment:
+      GOOGLE__CREDENTIALS__EMAIL: alexsmtptestservice@gmail.com
+      GOOGLE__CREDENTIALS__PASSWORD: zazpdfuduiweyfhn
+      GOOGLE__BACKEND_ALLOWED: 10.10.103.2
+    depends_on:
+      - app
+    ports:
+      - "8050:8050"
+    logging:
+      driver: "json-file"
+      options:
+        max-file: "1"
+        max-size: "100k"
+    networks:
+      backend-network:
+        ipv4_address: 10.10.103.10
 
   prometheus:
     image: prom/prometheus:latest
@@ -235,15 +244,17 @@ networks:
       driver: default
       config:
         - subnet: 10.10.101.0/24
-          gateway: 10.10.101.1
+          gateway: 10.10.101.254
 
   monitoring-network:
     driver: bridge
+#    labels:
+#      com.example.description: "Contains applications responsible for Resource\Metrics Monitoring"
     ipam:
       driver: default
       config:
         - subnet: 10.10.102.0/24
-          gateway: 10.10.102.1
+          gateway: 10.10.102.254
 
   backend-network:
     driver: bridge
@@ -251,7 +262,7 @@ networks:
       driver: default
       config:
         - subnet: 10.10.103.0/24
-          gateway: 10.10.103.1
+          gateway: 10.10.103.254
 
   frontend-network:
     driver: bridge
@@ -259,7 +270,7 @@ networks:
       driver: default
       config:
         - subnet: 10.10.104.0/24
-          gateway: 10.10.104.1
+          gateway: 10.10.104.254
 
   proxy-network:
     driver: bridge
