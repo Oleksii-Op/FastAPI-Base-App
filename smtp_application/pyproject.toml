@@ -1,0 +1,18 @@
+[tool.poetry]
+name = "smtp-google"
+version = "0.1.0"
+description = "SMTP server app which uses Google SMTP Services"
+authors = ["main <secret@gmail.com>"]
+license = "MIT"
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "3.12.7"
+pydantic = "^2.9.2"
+pydantic-settings = "^2.6.0"
+fastapi = {extras = ["standard"], version = "^0.115.3"}
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
