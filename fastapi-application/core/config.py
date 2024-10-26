@@ -34,6 +34,12 @@ class ApiPrefix(BaseModel):
         return path.removeprefix("/")
 
 
+class SMTPUrl(BaseModel):
+    host: str
+    port: int
+    endpoint: str
+
+
 class DatabaseConfig(BaseModel):
     url: PostgresDsn
     echo: bool = False
@@ -63,7 +69,7 @@ class AccessToken(BaseModel):
 
 class Settings(BaseSettings):
     model_config = SettingsConfigDict(
-        env_file=".env",
+        env_file=(".env.template", ".env"),
         case_sensitive=False,
         env_nested_delimiter="__",
         env_prefix="APP_CONFIG__",
@@ -74,6 +80,7 @@ class Settings(BaseSettings):
     db: DatabaseConfig
     access_token: AccessToken
     admin_user: AdminUser
+    smtp_service: SMTPUrl
 
 
 settings = Settings()
