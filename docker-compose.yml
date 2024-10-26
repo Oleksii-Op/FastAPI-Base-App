@@ -24,7 +24,6 @@ services:
       interval: 15s
       timeout: 10s
       retries: 10
-#    oom_kill_disable: true
     networks:
       pg-admin-network:
         ipv4_address: 10.10.101.3
@@ -63,7 +62,6 @@ services:
     build:
       context: ./fastapi-application
       dockerfile: Dockerfile
-    #image: multiapp:0.1
     restart: unless-stopped
     container_name: app
     # Use command below for the first run for running migrations
