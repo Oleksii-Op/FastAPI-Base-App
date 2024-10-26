@@ -1,0 +1,322 @@
+version: "3.5"
+
+services:
+
+  # PostgreSQL master
+  pg:
+    image: postgres
+    container_name: pg
+    secrets:
+      - pg-pass
+    environment:
+      POSTGRES_DB: shop
+      POSTGRES_USER: main
+      POSTGRES_PASSWORD_FILE: /run/secrets/pg-pass
+      # POSTGRES_PASSWORD: qwerty
+    ports:
+    # Use PGAdmin to access Postgres or via PGAdmin container to access psql.
+      - "5432"
+    volumes:
+      - db-data:/var/lib/postgresql/data
+    restart: always
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready --username=main --dbname=shop" ]
+      interval: 15s
+      timeout: 10s
+      retries: 10
+#    oom_kill_disable: true
+    networks:
+      pg-admin-network:
+        ipv4_address: 192.168.200.1
+      backend-network:
+        ipv4_address: 192.168.200.18
+
+  #Backend proxy
+  nginx:
+    restart: unless-stopped
+    image: nginx:stable
+    container_name: nginx
+    ports:
+     # Only HTTPS 443 port
+     # IPv4 ONLY. IPv6 is blocked by 0.0.0.0:host:container
+     # - "80:80"
+      - "0.0.0.0:443:443"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf
+      - ./nginx/ssl/:/etc/nginx/ssl/
+      - ./nginx/html/:/usr/share/nginx/html/
+    depends_on:
+      - app
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "100k"
+        max-file: "1"
+    networks:
+      frontend-network:
+        ipv4_address: 192.168.200.25
+      proxy-network:
+        ipv4_address: 192.168.200.33
+
+# Do not change "app" name as it is used by nginx
+  app:
+#    build:
+#      context: ./fastapi-application
+#      dockerfile: Dockerfile
+    image: test01
+    restart: unless-stopped
+    container_name: app
+    # Use command below for the first run for running migrations
+    # and creating a superuser. REMOVE AFTER THE FIRST RUN!
+    command: bash -c "sleep 10 && poetry run alembic upgrade head && poetry run python main.py"
+    environment:
+      APP_CONFIG__DB__URL: postgresql+asyncpg://main:supersecret@pg:5432/shop
+      # APP_CONFIG__DB__ECHO=1 will output SQLAlchemy queries to logs,
+      # set APP_CONFIG__DB__ECHO=0 for production to avoid unnecessary logs
+      APP_CONFIG__DB__ECHO: 1
+      APP_CONFIG__ACCESS_TOKEN__RESET_PASSWORD_TOKEN_SECRET: d270a3414c9c5de52047bf51914f51b46eb3518b62a7448d418d29406de81c2d
+      APP_CONFIG__ACCESS_TOKEN__VERIFICATION_TOKEN_SECRET: f1cbb46d52e6ab73802d9021155a77d5828838730a08d407fd2c7ec59740dc3b
+      # FastAPI superuser email and password
+      APP_CONFIG__DEFAULT_EMAIL: "admin@admin.com"
+      APP_CONFIG__DEFAULT_PASSWORD: "123"
+    links:
+      # Extra aliases for DNS
+      - "pg:database"
+    depends_on:
+      pg:
+        condition: service_started
+    ports:
+      - "8000"
+    logging:
+      driver: "json-file"
+      options:
+        max-file: "1"
+        max-size: "100k"
+    networks:
+      backend-network:
+        ipv4_address: 192.168.200.17
+      proxy-network:
+        ipv4_address: 192.168.200.34
+
+#  frontend:
+#    container_name: frontend
+#    networks:
+#      frontend-network:
+#        ipv4_address: 192.168.200.26
+
+#  smtp:
+#    build:
+#      context: ./smtp_application
+#      dockerfile: ...
+#    restart: on-failure
+#    container_name: smtp-server
+#    environment:
+#      GOOGLE__CREDENTIALS__EMAIL: ...
+#      GOOGLE__CREDENTIALS__PASSWORD: ...
+#    depends_on:
+#      - app
+#    ports:
+#      - "8050"
+#    logging:
+#      driver: "json-file"
+#      options:
+#        max-file: "1"
+#        max-size: "100k"
+#    networks:
+#      example-network:
+#        ipv4_address: 10.10.100.70
+
+  prometheus:
+    image: prom/prometheus:latest
+    restart: unless-stopped
+    container_name: prometheus
+    ports:
+      - "9090"
+    volumes:
+      - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
+    networks:
+      monitoring-network:
+        ipv4_address: 192.168.200.9
+      backend-network:
+        ipv4_address: 192.168.200.19
+
+  grafana:
+    image: grafana/grafana
+    container_name: grafana
+    restart: unless-stopped
+    user: root
+    depends_on:
+      - prometheus
+    ports:
+      # IPv6 blocked
+      # HTTPS
+      - "0.0.0.0:3000:3000"
+    volumes:
+      - ./grafana/provisioning:/etc/grafana/provisioning
+      - ./grafana/certs:/etc/grafana/certs
+    env_file:
+      - ./grafana/config.monitoring
+    networks:
+      monitoring-network:
+        ipv4_address: 192.168.200.10
+
+# Troubleshooting network problems
+#  network-analyzer:
+#    build:
+#      context: ./
+#      dockerfile: Dockerfile_netmonitor
+#    restart: unless-stopped
+#    container_name: network_analyzer
+#    networks:
+#      aux-network:
+#        ipv4_address: 10.10.100.8
+
+# Sends host's metrics to prometheus
+  node_exporter:
+    image: quay.io/prometheus/node-exporter:latest
+    container_name: node_exporter
+    command:
+      - '--path.rootfs=/host'
+    pid: host
+    restart: unless-stopped
+    volumes:
+      - '/:/host:ro,rslave'
+    networks:
+      monitoring-network:
+        ipv4_address: 192.168.200.11
+
+#  portainer:
+#    image: portainer/portainer-ce
+#    container_name: portainer
+#    ports:
+#      - "8050:8000"
+#      - "9050:9000"
+#    restart: always
+#    volumes:
+#      - /var/run/docker.sock:/var/run/docker.sock
+#      - portainer_data:/data
+#    networks:
+#      aux-network:
+#        ipv4_address: 10.10.100.7
+
+  cadvisor:
+    image: gcr.io/cadvisor/cadvisor:latest
+    container_name: cadvisor
+    ports:
+      - "8080:8080"
+    volumes:
+      - /:/rootfs:ro
+      - /var/run:/var/run:rw
+      - /sys:/sys:ro
+      - /var/lib/docker/:/var/lib/docker:ro
+    networks:
+      monitoring-network:
+        ipv4_address: 192.168.200.12
+
+  pgadmin:
+    image: dpage/pgadmin4
+    container_name: pgadmin4
+    restart: always
+    environment:
+      PGADMIN_DEFAULT_EMAIL: 'admin@example.com'
+      PGADMIN_DEFAULT_PASSWORD: 'test_admin'
+    ports:
+      - "0.0.0.0:8020:80"
+    volumes:
+      - admin-data:/var/lib/pgadmin
+    networks:
+      pg-admin-network:
+        ipv4_address: 192.168.200.2
+
+networks:
+#  aux-network:
+#    driver: bridge
+#    ipam:
+#      driver: default
+#      config:
+#        - subnet: 10.10.100.0/24
+#          gateway: 10.10.100.1
+
+  pg-admin-network:
+    driver: bridge
+#    driver_opts:
+#      com.docker.network.driver.mtu: "9000"
+    ipam:
+      driver: default
+      config:
+        - subnet: 192.168.200.0/29
+          # 192.168.200.0 - network address
+          # 192.168.200.7 - broadcast address
+          # 192.168.200.1 - 192.168.200.6 - usable addresses
+          # Last usable address is gateway 192.168.200.6
+          # Postgres: 192.168.200.1
+          # Pgadmin4: 192.168.200.2
+          gateway: 192.168.200.6
+
+  monitoring-network:
+    driver: bridge
+    ipam:
+      driver: default
+      config:
+        - subnet: 192.168.200.8/29
+          # 192.168.200.8 - network address
+          # 192.168.200.15 - broadcast address
+          # 192.168.200.9 - 192.168.200.14 - usable addresses
+          # Last usable address is gateway 192.168.200.14
+          # Prometheus: 192.168.200.9
+          # Grafana: 192.168.200.10
+          # Node Exporter: 192.168.200.11
+          # CAdviser: 192.168.200.12
+          gateway: 192.168.200.14
+
+  backend-network:
+    driver: bridge
+    ipam:
+      driver: default
+      config:
+        - subnet: 192.168.200.16/29
+          # 192.168.200.16 - network address
+          # 192.168.200.23 - broadcast address
+          # 192.168.200.17 - 192.168.200.22 - usable addresses
+          # Last usable address is gateway 192.168.200.22
+          # BackEnd FastAPI: 192.168.200.17
+          # Postgres: 192.168.200.18
+          # Prometheus: 192.168.200.19
+          gateway: 192.168.200.22
+
+  frontend-network:
+    driver: bridge
+    ipam:
+      driver: default
+      config:
+        - subnet: 192.168.200.24/29
+          # 192.168.200.24 - network address
+          # 192.168.200.31 - broadcast address
+          # 192.168.200.25 - 192.168.200.30 - usable addresses
+          # Last usable address is gateway 192.168.200.30
+          # Reverse Proxy Nginx: 192.168.200.25
+          # FrontEnd: 192.168.200.26
+          gateway: 192.168.200.30
+
+  proxy-network:
+    driver: bridge
+    ipam:
+      driver: default
+      config:
+        - subnet: 192.168.200.32/29
+          # 192.168.200.32 - network address
+          # 192.168.200.39 - broadcast address
+          # 192.168.200.33 - 192.168.200.38 - usable addresses
+          # Last usable address is gateway 192.168.200.38
+          # BackEnd Proxy Nginx: 192.168.200.33
+          # BackEnd FastAPI: 192.168.200.34
+          gateway: 192.168.200.38
+
+volumes:
+  db-data:
+  portainer_data:
+  admin-data:
+
+secrets:
+  pg-pass:
+    file: ./.db.env
