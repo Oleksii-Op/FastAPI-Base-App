@@ -107,8 +107,8 @@ services:
     restart: on-failure
     container_name: smtp-server
     environment:
-      GOOGLE__CREDENTIALS__EMAIL: alexsmtptestservice@gmail.com
-      GOOGLE__CREDENTIALS__PASSWORD: zazpdfuduiweyfhn
+      GOOGLE__CREDENTIALS__EMAIL:
+      GOOGLE__CREDENTIALS__PASSWORD:
       GOOGLE__BACKEND_ALLOWED: 10.10.103.2
     depends_on:
       - app

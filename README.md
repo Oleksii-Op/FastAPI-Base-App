@@ -1,5 +1,6 @@
 # FastAPI Application (Backend Auth)
 
+
 ## This project includes:
 * Python FastAPI - simple backend for registration/auth purposes.
 * PostgreSQL - as the main database.
@@ -28,4 +29,7 @@ docker compose up -d --build
 #### After building, ```docker compose up -d``` is enough.
 #### 3. Enter https://site.local/index in your web browser or https://site.local/docs. (Your browser will complain about self-signed certificate, but it's okay.)
 
+TODO: Isolate Nginx from PostgreSQL
 
+## Docker networks topology
+![topology.png](topology.png)
