@@ -50,11 +50,11 @@ class UserManager(
             user.username,
             token,
         )
-        await send_verification_token(
-            username=user.username,
-            token=token,
-            email=user.email,
-        )
+        # await send_verification_token(
+        #     username=user.username,
+        #     token=token,
+        #     email=user.email,
+        # )
 
     async def on_after_verify(
         self, user: User, request: Optional["Request"] = None
