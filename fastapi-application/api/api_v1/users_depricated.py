@@ -18,7 +18,6 @@ router = APIRouter(tags=["Users"])
 
 @router.get("", response_model=list[UserRead])
 async def get_users(
-    # session: AsyncSession = Depends(db_helper.session_getter),
     session: Annotated[
         AsyncSession,
         Depends(db_helper.session_getter),

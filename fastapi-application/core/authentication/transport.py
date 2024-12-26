@@ -29,10 +29,10 @@ class CustomBearerTransport(BearerTransport):
                     "application/json": {
                         "example": {
                             "access_token": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ1"
-                                            "c2VyX2lkIjoiOTIyMWZmYzktNjQwZi00MzcyLTg2Z"
-                                            "DMtY2U2NDJjYmE1NjAzIiwiYXVkIjoiZmFzdGFwaS"
-                                            "11c2VyczphdXRoIiwiZXhwIjoxNTcxNTA0MTkzfQ."
-                                            "M10bjOe45I5Ncu_uXvOmVV8QxnL-nZfcH96U90JaocI"
+                            "c2VyX2lkIjoiOTIyMWZmYzktNjQwZi00MzcyLTg2Z"
+                            "DMtY2U2NDJjYmE1NjAzIiwiYXVkIjoiZmFzdGFwaS"
+                            "11c2VyczphdXRoIiwiZXhwIjoxNTcxNTA0MTkzfQ."
+                            "M10bjOe45I5Ncu_uXvOmVV8QxnL-nZfcH96U90JaocI"
                         }
                     }
                 },
@@ -41,9 +41,8 @@ class CustomBearerTransport(BearerTransport):
 
     @staticmethod
     def get_openapi_logout_responses_success() -> OpenAPIResponseType:
-        return {
-            status.HTTP_200_OK: {}
-        }
+        return {status.HTTP_200_OK: {}}
+
 
 bearer_transport = CustomBearerTransport(
     tokenUrl=settings.api.bearer_token_url,

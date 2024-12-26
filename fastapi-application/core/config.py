@@ -1,5 +1,5 @@
 from pydantic import BaseModel
-from pydantic import PostgresDsn
+from pydantic import PostgresDsn, RedisDsn
 from pydantic_settings import (
     BaseSettings,
     SettingsConfigDict,
