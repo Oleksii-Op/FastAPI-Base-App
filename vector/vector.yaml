@@ -1,0 +1,16 @@
+sources:
+  docker_containers:
+    type: docker_logs
+    exclude_containers:
+      - vector
+
+sinks:
+  clickhouse:
+    type: clickhouse
+    inputs:
+      - docker_containers
+    endpoint: http://clickhouse:8123
+    table: "dockerlogs"
+    database: "docker"
+    format: json_each_row
+    skip_unknown_fields: true
