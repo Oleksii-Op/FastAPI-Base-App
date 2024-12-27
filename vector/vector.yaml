@@ -14,3 +14,15 @@ sinks:
     database: "docker"
     format: json_each_row
     skip_unknown_fields: true
+
+  better_stack:
+    type: http
+    method: post
+    inputs:
+      - "docker_containers"
+    uri: https://in.logs.betterstack.com/
+    encoding:
+      codec: json
+    auth:
+      strategy: bearer
+      token: yourtoken
