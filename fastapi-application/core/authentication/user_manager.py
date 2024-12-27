@@ -36,7 +36,7 @@ class UserManager(
             user.username,
         )
 
-        await UserManager.request_verify(self, user, request)
+        # await UserManager.request_verify(self, user, request)
 
     async def on_after_request_verify(
         self,

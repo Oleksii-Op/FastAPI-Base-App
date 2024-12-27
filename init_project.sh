@@ -4,12 +4,12 @@ PGPASSFILE=".db.env"
 APP_CONFIG_DB_ECHO=$(grep -E "APP_CONFIG__DB__ECHO:" docker-compose.yml | awk '{print $2}')
 
 if [ -e "$PGPASSFILE" ] && [ -s "$PGPASSFILE" ]; then
-    echo "File with PostgreSQL password exists"
+    echo -e "\e[32mFile with PostgreSQL password exists\e[0m"
     read -p "Create new password(yes) or keep present(no)? > " ANSWER
     if [ "$ANSWER" == "yes" ]; then
         read -p "Enter a password for PostgreSQL -> " PGPASS
         if [ -n "$PGPASS" ]; then
-            echo -e "\nNew password has been set to $PGPASSFILE"
+            echo -e "\e[32m\nNew password has been set to $PGPASSFILE\e[0m"
             echo "$PGPASS" > $PGPASSFILE
             sed -i "s|APP_CONFIG__DB__URL: .*|APP_CONFIG__DB__URL: postgresql+asyncpg://main:${PGPASS}@pg:5432/shop|" docker-compose.yml
         else
@@ -21,7 +21,8 @@ if [ -e "$PGPASSFILE" ] && [ -s "$PGPASSFILE" ]; then
         echo -e "\nSkipping..."
     fi
 else
-    echo "Supersecret" > $PGPASSFILE
+    echo -e "\e[33mNo $PGPASSFILE found! Creating one with default 'supersecret' password\e[0m"
+    echo "supersecret" > $PGPASSFILE
 fi
 
 read -p "Enter your third app Gmail for SMTP server 'account@gmail.com' -> " SMTPEMAIL
