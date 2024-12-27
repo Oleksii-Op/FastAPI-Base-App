@@ -1,7 +1,6 @@
-version: "3.5"
+name: base_app
 
 services:
-
   # PostgreSQL master
   pg:
     image: postgres
@@ -12,7 +11,6 @@ services:
       POSTGRES_DB: shop
       POSTGRES_USER: main
       POSTGRES_PASSWORD_FILE: /run/secrets/pg-pass
-      # POSTGRES_PASSWORD: qwerty
     ports:
     # Use PGAdmin to access Postgres or via PGAdmin container to access psql.
       - "5432"
@@ -30,6 +28,15 @@ services:
       backend-network:
         ipv4_address: 10.10.103.3
 
+  redis:
+    image: "redis:alpine"
+    container_name: redis
+    ports:
+      - "6379"
+    networks:
+      backend-network:
+        ipv4_address: 10.10.103.10
+
   #Backend proxy
   nginx:
     restart: unless-stopped
@@ -45,12 +52,8 @@ services:
       - ./nginx/ssl/:/etc/nginx/ssl/
       - ./nginx/html/:/usr/share/nginx/html/
     depends_on:
-      - app
-    logging:
-      driver: "json-file"
-      options:
-        max-size: "100k"
-        max-file: "1"
+      app:
+        condition: service_started
     networks:
       frontend-network:
         ipv4_address: 10.10.104.3
@@ -77,6 +80,8 @@ services:
       # FastAPI superuser email and password
       APP_CONFIG__DEFAULT_EMAIL: "admin@admin.com"
       APP_CONFIG__DEFAULT_PASSWORD: "123"
+      # SMTP server settings
+      # DO NOT CHANGE
       APP_CONFIG__SMTP_SERVICE__HOST: http://10.10.103.10
       APP_CONFIG__SMTP_SERVICE__PORT: 8050
       APP_CONFIG__SMTP_SERVICE__ENDPOINT: /send/verifytoken
@@ -88,17 +93,11 @@ services:
         condition: service_started
     ports:
       - "8000"
-    logging:
-      driver: "json-file"
-      options:
-        max-file: "1"
-        max-size: "100k"
     networks:
       backend-network:
         ipv4_address: 10.10.103.2
       proxy-network:
         ipv4_address: 10.10.105.3
-
 
   smtp:
     build:
@@ -106,19 +105,21 @@ services:
       dockerfile: ./Dockerfile
     restart: on-failure
     container_name: smtp-server
+    deploy:
+      resources:
+        limits:
+          cpus: "0.5"
+          memory: 512M
     environment:
-      GOOGLE__CREDENTIALS__EMAIL:
-      GOOGLE__CREDENTIALS__PASSWORD:
-      GOOGLE__BACKEND_ALLOWED: 10.10.103.2
+      GOOGLE__CREDENTIALS__EMAIL: youremail
+      GOOGLE__CREDENTIALS__PASSWORD: yourpass
+      # DO NOT CHANGE
+      GOOGLE__BACKEND_ALLOWED__IP_ADDRESS: 10.10.103.2
     depends_on:
-      - app
+      app:
+        condition: service_started
     ports:
       - "8050:8050"
-    logging:
-      driver: "json-file"
-      options:
-        max-file: "1"
-        max-size: "100k"
     networks:
       backend-network:
         ipv4_address: 10.10.103.10
@@ -142,8 +143,6 @@ services:
     container_name: grafana
     restart: unless-stopped
     user: root
-    depends_on:
-      - prometheus
     ports:
       # IPv6 blocked
       # HTTPS
@@ -157,24 +156,42 @@ services:
       monitoring-network:
         ipv4_address: 10.10.102.6
 
-# Troubleshooting network problems
-#  network-analyzer:
-#    build:
-#      context: ./
-#      dockerfile: Dockerfile_netmonitor
-#    restart: unless-stopped
-#    container_name: network_analyzer
+#  clickhouse:
+#    image: clickhouse/clickhouse-server
+##    volumes:
+##     # - clickhouse-data:/var/lib/clickhouse/
+##     # - ./clickhouse/init-db.sh:/docker-entrypoint-init-db.d/init-db.sh
+##    #  - ./clickhouse:/var/log/clickhouse-server/
+#    environment:
+#      # Default user and database will be created using `init-defaults.sh` script
+#      CLICKHOUSE_DB: docker
+#    ports:
+#      - "8123:8123"
+#      - "9000:9000"
 #    networks:
-#      aux-network:
-#        ipv4_address: 10.10.100.8
+#      monitoring-network:
+#        ipv4_address: 10.10.102.20
 
-# Sends host's metrics to prometheus
+  vector:
+    image: timberio/vector:latest-alpine
+    container_name: vector
+    volumes:
+      - ./vector/vector.yaml:/etc/vector/vector.yaml:ro
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ./vector.log:/var/log/logs.log:rw
+    networks:
+      monitoring-network:
+        ipv4_address: 10.10.102.15
+    depends_on:
+      - clickhouse
+
+  # Sends host's metrics to prometheus
   node_exporter:
     image: quay.io/prometheus/node-exporter:latest
     container_name: node_exporter
     command:
       - '--path.rootfs=/host'
-    pid: host
+#    pid: host
     restart: unless-stopped
     volumes:
       - '/:/host:ro,rslave'
@@ -214,6 +231,9 @@ services:
     image: dpage/pgadmin4
     container_name: pgadmin4
     restart: always
+    depends_on:
+     pg:
+       condition: service_started
     environment:
       PGADMIN_DEFAULT_EMAIL: 'admin@example.com'
       PGADMIN_DEFAULT_PASSWORD: 'test_admin'
@@ -226,18 +246,8 @@ services:
         ipv4_address: 10.10.101.2
 
 networks:
-#  aux-network:
-#    driver: bridge
-#    ipam:
-#      driver: default
-#      config:
-#        - subnet: 10.10.100.0/24
-#          gateway: 10.10.100.1
-
   pg-admin-network:
     driver: bridge
-#    driver_opts:
-#      com.docker.network.driver.mtu: "9000"
     ipam:
       driver: default
       config:
@@ -246,8 +256,6 @@ networks:
 
   monitoring-network:
     driver: bridge
-#    labels:
-#      com.example.description: "Contains applications responsible for Resource\Metrics Monitoring"
     ipam:
       driver: default
       config:
@@ -282,7 +290,10 @@ volumes:
   db-data:
   portainer_data:
   admin-data:
+#  clickhouse-data:
+
 
 secrets:
   pg-pass:
     file: ./.db.env
+
