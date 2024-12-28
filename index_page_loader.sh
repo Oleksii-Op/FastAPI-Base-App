@@ -9,7 +9,7 @@
 NUM_REQUESTS=10000
 
 
-read -p "Enter url for load test 'https://localhost/index' -> " URL
+read -e -p "Enter url for load test > " -i https://localhost/index URL
 #URL="https://192.168.1.73/index"
 
 
