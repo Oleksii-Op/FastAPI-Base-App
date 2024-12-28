@@ -31,4 +31,4 @@ sinks:
 #      codec: json
 #    auth:
 #      strategy: bearer
-#      token: your
+#      token: yourtoken
