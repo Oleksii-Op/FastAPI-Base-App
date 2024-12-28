@@ -12,7 +12,7 @@ services:
       POSTGRES_USER: main
       POSTGRES_PASSWORD_FILE: /run/secrets/pg-pass
     ports:
-    # Use PGAdmin to access Postgres or via PGAdmin container to access psql.
+    # Use PGAdmin to access Postgres tables.
       - "5432"
     volumes:
       - db-data:/var/lib/postgresql/data
@@ -22,6 +22,9 @@ services:
       interval: 15s
       timeout: 10s
       retries: 10
+    depends_on:
+      vector:
+        condition: service_started
     networks:
       pg-admin-network:
         ipv4_address: 10.10.101.3
@@ -29,13 +32,16 @@ services:
         ipv4_address: 10.10.103.3
 
   redis:
-    image: "redis:alpine"
+    image: redis:7.4.1-bookworm
     container_name: redis
+    depends_on:
+      vector:
+        condition: service_started
     ports:
       - "6379"
     networks:
       backend-network:
-        ipv4_address: 10.10.103.10
+        ipv4_address: 10.10.103.15
 
   #Backend proxy
   nginx:
@@ -60,11 +66,13 @@ services:
       proxy-network:
         ipv4_address: 10.10.105.2
 
-# Do not change "app" name as it is used by nginx
+# Do not change "app" name as it is used by nginx configs
   app:
     build:
       context: ./fastapi-application
       dockerfile: Dockerfile
+      tags:
+        - "fastapi-backend:0.1"
     restart: unless-stopped
     container_name: app
     # Use command below for the first run for running migrations
@@ -85,11 +93,17 @@ services:
       APP_CONFIG__SMTP_SERVICE__HOST: http://10.10.103.10
       APP_CONFIG__SMTP_SERVICE__PORT: 8050
       APP_CONFIG__SMTP_SERVICE__ENDPOINT: /send/verifytoken
+      # DO NOT CHANGE
+      APP_CONFIG__REDIS__URL: redis://redis:6379
+    extra_hosts:
+      - "redis=10.10.103.15"
     links:
       # Extra aliases for DNS
       - "pg:database"
     depends_on:
       pg:
+        condition: service_healthy
+      redis:
         condition: service_started
     ports:
       - "8000"
@@ -103,13 +117,15 @@ services:
     build:
       context: ./smtp_application
       dockerfile: ./Dockerfile
+      tags:
+        - "smtpserver:0.1"
     restart: on-failure
     container_name: smtp-server
-    deploy:
-      resources:
-        limits:
-          cpus: "0.5"
-          memory: 512M
+#    deploy:
+#      resources:
+#        limits:
+#          cpus: "0.5"
+#          memory: 512M
     environment:
       GOOGLE__CREDENTIALS__EMAIL: youremail
       GOOGLE__CREDENTIALS__PASSWORD: yourpass
@@ -119,7 +135,7 @@ services:
       app:
         condition: service_started
     ports:
-      - "8050:8050"
+      - "8050"
     networks:
       backend-network:
         ipv4_address: 10.10.103.10
@@ -128,6 +144,9 @@ services:
     image: prom/prometheus:latest
     restart: unless-stopped
     container_name: prometheus
+    depends_on:
+      vector:
+        condition: service_started
     ports:
       - "9090"
     volumes:
@@ -147,6 +166,9 @@ services:
       # IPv6 blocked
       # HTTPS
       - "0.0.0.0:3000:3000"
+    depends_on:
+      vector:
+        condition: service_started
     volumes:
       - ./grafana/provisioning:/etc/grafana/provisioning
       - ./grafana/certs:/etc/grafana/certs
@@ -156,21 +178,29 @@ services:
       monitoring-network:
         ipv4_address: 10.10.102.6
 
-#  clickhouse:
-#    image: clickhouse/clickhouse-server
-##    volumes:
-##     # - clickhouse-data:/var/lib/clickhouse/
-##     # - ./clickhouse/init-db.sh:/docker-entrypoint-init-db.d/init-db.sh
-##    #  - ./clickhouse:/var/log/clickhouse-server/
-#    environment:
-#      # Default user and database will be created using `init-defaults.sh` script
-#      CLICKHOUSE_DB: docker
-#    ports:
-#      - "8123:8123"
-#      - "9000:9000"
-#    networks:
-#      monitoring-network:
-#        ipv4_address: 10.10.102.20
+  clickhouse:
+    image: clickhouse/clickhouse-server
+    container_name: clickhouse
+    volumes:
+      - clickhouse-data:/var/lib/clickhouse/
+      - ./clickhouse/:/docker-entrypoint-initdb.d/
+    environment:
+      # Default user and database will be created using `init-defaults.sh` script
+      CLICKHOUSE_DB: docker
+      CLICKHOUSE_USER: default
+      CLICKHOUSE_PASSWORD: password
+    healthcheck:
+      test: wget --no-verbose --tries=1 http://127.0.0.1:8123/ping || exit 1
+      interval: 30s
+      timeout: 30s
+      retries: 3
+      start_period: 5s
+    ports:
+      - "8123"
+      - "9000:9000"
+    networks:
+      monitoring-network:
+        ipv4_address: 10.10.102.20
 
   vector:
     image: timberio/vector:latest-alpine
@@ -178,12 +208,12 @@ services:
     volumes:
       - ./vector/vector.yaml:/etc/vector/vector.yaml:ro
       - /var/run/docker.sock:/var/run/docker.sock
-      - ./vector.log:/var/log/logs.log:rw
     networks:
       monitoring-network:
         ipv4_address: 10.10.102.15
     depends_on:
-      - clickhouse
+      clickhouse:
+        condition: service_healthy
 
   # Sends host's metrics to prometheus
   node_exporter:
@@ -193,31 +223,23 @@ services:
       - '--path.rootfs=/host'
 #    pid: host
     restart: unless-stopped
+    depends_on:
+      vector:
+        condition: service_started
     volumes:
       - '/:/host:ro,rslave'
     networks:
       monitoring-network:
         ipv4_address: 10.10.102.3
 
-#  portainer:
-#    image: portainer/portainer-ce
-#    container_name: portainer
-#    ports:
-#      - "8050:8000"
-#      - "9050:9000"
-#    restart: always
-#    volumes:
-#      - /var/run/docker.sock:/var/run/docker.sock
-#      - portainer_data:/data
-#    networks:
-#      aux-network:
-#        ipv4_address: 10.10.100.7
-
   cadvisor:
     image: gcr.io/cadvisor/cadvisor:latest
     container_name: cadvisor
     ports:
-      - "8080:8080"
+      - "8080"
+    depends_on:
+      vector:
+        condition: service_started
     volumes:
       - /:/rootfs:ro
       - /var/run:/var/run:rw
@@ -288,12 +310,9 @@ networks:
 
 volumes:
   db-data:
-  portainer_data:
   admin-data:
-#  clickhouse-data:
-
+  clickhouse-data:
 
 secrets:
   pg-pass:
     file: ./.db.env
-
