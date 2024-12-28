@@ -1,5 +1,5 @@
 from pydantic_settings import BaseSettings, SettingsConfigDict
-from pydantic import BaseModel, EmailStr
+from pydantic import BaseModel, EmailStr, IPvAnyAddress, ConfigDict
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -21,12 +21,11 @@ class Credentials(BaseModel):
 
 
 class AllowedAddresses(BaseModel):
-    ip_address: str
+    ip_address: IPvAnyAddress
 
 
 class Settings(BaseSettings):
     model_config = SettingsConfigDict(
-        extra="allow",
         env_file=(".env.template", ".env"),
         case_sensitive=False,
         env_nested_delimiter="__",

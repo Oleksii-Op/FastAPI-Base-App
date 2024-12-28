@@ -40,6 +40,10 @@ class SMTPUrl(BaseModel):
     endpoint: str
 
 
+class RedisConfig(BaseModel):
+    url: RedisDsn
+
+
 class DatabaseConfig(BaseModel):
     url: PostgresDsn
     echo: bool = False
@@ -81,6 +85,7 @@ class Settings(BaseSettings):
     access_token: AccessToken
     admin_user: AdminUser
     smtp_service: SMTPUrl
+    redis: RedisConfig
 
 
 settings = Settings()
