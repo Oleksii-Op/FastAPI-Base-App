@@ -18,7 +18,7 @@ providers:
       path: /etc/grafana/provisioning/dashboards/node_exporter
 
   - name: 'CAdvisor'
-    folder: ''
+    folder: 'Services'
     type: file
     disableDeletion: false
     editable: true
