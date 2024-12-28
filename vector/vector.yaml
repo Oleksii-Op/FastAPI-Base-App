@@ -14,15 +14,21 @@ sinks:
     database: "docker"
     format: json_each_row
     skip_unknown_fields: true
-
-  better_stack:
-    type: http
-    method: post
-    inputs:
-      - "docker_containers"
-    uri: https://in.logs.betterstack.com/
-    encoding:
-      codec: json
+    # Helping ClickHouse to properly parse RFC3339/ISO 8601 Timestamps
+    date_time_best_effort: true
     auth:
-      strategy: bearer
-      token: yourtoken
+      strategy: basic
+      password: password
+      user: default
+
+#  better_stack:
+#    type: http
+#    method: post
+#    inputs:
+#      - "docker_containers"
+#    uri: https://in.logs.betterstack.com/
+#    encoding:
+#      codec: json
+#    auth:
+#      strategy: bearer
+#      token: your
