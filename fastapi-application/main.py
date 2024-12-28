@@ -61,7 +61,7 @@ if __name__ == "__main__":
         host=settings.run.host,
         port=settings.run.port,
         # set reload=False if to be run in docker container
-        reload=True,
+        reload=False,
         log_config="log_conf.yaml",
     )
     logger.info("FastAPI application stopped")

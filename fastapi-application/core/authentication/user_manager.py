@@ -9,8 +9,6 @@ from core.config import settings
 from core.types.user_id import UserIdType
 
 
-from core.smtp_link.send_verify_token import send_verification_token
-
 if TYPE_CHECKING:
     from fastapi import Request
 
