@@ -5,7 +5,7 @@ from fastapi_users.db import (
     SQLAlchemyUserDatabase,
     SQLAlchemyBaseUserTable,
 )
-from sqlalchemy.orm import Mapped, mapped_column
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from .base import Base
 from .mixins.int_id_pk import IntIdPkMixin
@@ -14,6 +14,7 @@ from core.types.user_id import UserIdType
 
 if TYPE_CHECKING:
     from sqlalchemy.ext.asyncio import AsyncSession
+    from .laptop import Laptop
 
 
 class User(Base, IntIdPkMixin, SQLAlchemyBaseUserTable[UserIdType]):
@@ -30,7 +31,11 @@ class User(Base, IntIdPkMixin, SQLAlchemyBaseUserTable[UserIdType]):
         default=datetime.now,
         onupdate=datetime.now,
     )
+
     phone_number: Mapped[str] = mapped_column()
+    laptops: Mapped[list["Laptop"]] = relationship(
+        cascade="all, delete-orphan", back_populates="user"
+    )
 
     @classmethod
     def get_db(cls, session: "AsyncSession"):
