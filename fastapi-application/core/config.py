@@ -1,5 +1,16 @@
-from pydantic import BaseModel
-from pydantic import PostgresDsn, RedisDsn
+from typing import Annotated, Any
+
+
+from pydantic import (
+    BaseModel,
+    AnyUrl,
+    computed_field,
+    BeforeValidator,
+    EmailStr,
+    PostgresDsn,
+    RedisDsn,
+)
+
 from pydantic_settings import (
     BaseSettings,
     SettingsConfigDict,
@@ -7,6 +18,14 @@ from pydantic_settings import (
 from dotenv import load_dotenv
 
 load_dotenv()
+
+
+def parse_cors(v: Any) -> list[str] | str:
+    if isinstance(v, str) and not v.startswith("["):
+        return [i.strip() for i in v.split(",")]
+    elif isinstance(v, list | str):
+        return v
+    raise ValueError(v)
 
 
 class RunConfig(BaseModel):
@@ -60,9 +79,9 @@ class DatabaseConfig(BaseModel):
     }
 
 
-class AdminUser(BaseModel):
-    default_email: str
-    default_password: str
+class FirstSuperUser(BaseModel):
+    email: EmailStr
+    password: str
 
 
 class AccessToken(BaseModel):
@@ -83,9 +102,27 @@ class Settings(BaseSettings):
     api: ApiPrefix = ApiPrefix()
     db: DatabaseConfig
     access_token: AccessToken
-    admin_user: AdminUser
+    firstsuperuser: FirstSuperUser
     smtp_service: SMTPUrl
     redis: RedisConfig
 
+    PROJECT_NAME: str
 
-settings = Settings()
+    FRONTEND_HOST: str
+
+    BACKEND_CORS_ORIGINS: Annotated[
+        list[AnyUrl] | str,
+        BeforeValidator(parse_cors),
+    ] = []
+
+    @computed_field  # type: ignore[prop-decorator]
+    @property
+    def all_cors_origins(self) -> list[str]:
+        return [str(origin).rstrip("/") for origin in self.BACKEND_CORS_ORIGINS] + [
+            self.FRONTEND_HOST
+        ]
+
+    EMAIL_TEST_USER: str = "test@example.com"
+
+
+settings = Settings()  # type: ignore
