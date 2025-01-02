@@ -24,7 +24,11 @@ def get_user_messages(
     ]
 ):
     return {
-        "messages": ["m1", "m2", "m3"],
+        "messages": [
+            "This is fake message!",
+            "You have a fake message from FakeUser!",
+            "This is test message!",
+        ],
         "user": UserRead.model_validate(user),
     }
 
