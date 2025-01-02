@@ -2,6 +2,7 @@ import asyncio
 import contextlib
 
 from fastapi_users.exceptions import UserAlreadyExists
+from pydantic import EmailStr
 
 from api.dependencies.authentication.users import get_users_db
 from api.dependencies.authentication.user_manager import get_user_manager
@@ -27,17 +28,17 @@ async def create_user(
 
 
 async def create_superuser(
-    email: str = settings.admin_user.default_email,
-    password: str = settings.admin_user.default_password,
+    email: EmailStr = settings.firstsuperuser.email,
+    password: str = settings.firstsuperuser.password,
     is_active: bool = True,
     is_superuser: bool = True,
     is_verified: bool = True,
-):
+) -> "User":
     user_create = UserCreate(
         email=email,
         username="FastAPIAdmin",
         first_name="Admin",
-        last_name="User",
+        last_name="Admin",
         phone_number="+380992921960",
         password=password,
         is_active=is_active,
