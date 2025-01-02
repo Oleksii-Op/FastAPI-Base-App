@@ -19,3 +19,7 @@ current_superuser = fastapi_users.current_user(
     active=True,
     superuser=True,
 )
+current_verified_user = fastapi_users.current_user(
+    active=True,
+    verified=True,
+)
