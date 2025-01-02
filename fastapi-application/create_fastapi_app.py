@@ -1,4 +1,5 @@
 from contextlib import asynccontextmanager
+from typing import AsyncIterator
 
 from fastapi import FastAPI
 from fastapi.responses import ORJSONResponse
@@ -8,21 +9,23 @@ from fastapi.openapi.docs import (
     get_swagger_ui_oauth2_redirect_html,
 )
 import orjson
+from starlette.responses import HTMLResponse
 
+from core.config import settings
 from core.models import db_helper
 
 
 @asynccontextmanager
-async def lifespan(app: FastAPI):
+async def lifespan(app: FastAPI) -> AsyncIterator[None]:
     # startup
     yield
     # shutdown
     await db_helper.dispose()
 
 
-def register_static_docs_routes(app: FastAPI):
+def register_static_docs_routes(app: FastAPI) -> None:
     @app.get("/docs", include_in_schema=False)
-    async def custom_swagger_ui_html():
+    async def custom_swagger_ui_html() -> HTMLResponse:
         return get_swagger_ui_html(
             openapi_url=app.openapi_url,
             title=app.title + " - Swagger UI",
@@ -32,11 +35,11 @@ def register_static_docs_routes(app: FastAPI):
         )
 
     @app.get(app.swagger_ui_oauth2_redirect_url, include_in_schema=False)
-    async def swagger_ui_redirect():
+    async def swagger_ui_redirect() -> HTMLResponse:
         return get_swagger_ui_oauth2_redirect_html()
 
     @app.get("/redoc", include_in_schema=False)
-    async def redoc_html():
+    async def redoc_html() -> HTMLResponse:
         return get_redoc_html(
             openapi_url=app.openapi_url,
             title=app.title + " - ReDoc",
@@ -48,6 +51,7 @@ def create_app(
     create_custom_static_urls: bool = False,
 ) -> FastAPI:
     app = FastAPI(
+        title=settings.PROJECT_NAME,
         default_response_class=ORJSONResponse,
         lifespan=lifespan,
         docs_url=None if create_custom_static_urls else "/docs",
