@@ -1,4 +1,4 @@
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Optional
 from uuid import UUID, uuid4
 from datetime import datetime
 
@@ -16,36 +16,44 @@ class Laptop(Base):
         default=uuid4,
         primary_key=True,
     )
-    name: Mapped[str]
+    name: Mapped[str] = mapped_column()
     price: Mapped[float] = mapped_column()
     # Screen
-    screen_frequency: Mapped[str]
-    diagonal: Mapped[str]
-    resolution: Mapped[str]
-    screen_type: Mapped[str]
+    screen_frequency: Mapped[Optional[str]]
+    diagonal: Mapped[str] = mapped_column()
+    resolution: Mapped[str] = mapped_column()
+    screen_type: Mapped[Optional[str]]
     # CPU
     cpu_model: Mapped[str]
-    cpu_class: Mapped[str] = mapped_column()
-    cpu_frequency: Mapped[str] = mapped_column()
+    cpu_class: Mapped[str]
+    cpu_frequency: Mapped[Optional[str]]
+    cpu_cores: Mapped[Optional[int]]
+    cpu_threads: Mapped[Optional[int]]
     # GPU
-    gpu_model: Mapped[str] = mapped_column()
-    gpu_memory: Mapped[str] = mapped_column()
+    gpu_model: Mapped[Optional[str]]
+    gpu_memory: Mapped[Optional[str]]
+    gpu_memory_type: Mapped[Optional[str]]
     # RAM
-    ram_size: Mapped[str] = mapped_column()
-    ram_type: Mapped[str] = mapped_column()
-    ram_frequency: Mapped[str] = mapped_column()
+    ram_size: Mapped[Optional[str]]
+    ram_type: Mapped[Optional[str]]
+    ram_frequency: Mapped[Optional[str]]
+    # Storage
+    storage_size: Mapped[Optional[str]]
+    storage_type: Mapped[Optional[str]]
+    # Hardware
+    hardware_type: Mapped[Optional[str]]
 
     is_available: Mapped[bool]
-    maker: Mapped[str]
+    maker: Mapped[str] = mapped_column()
 
-    storage_size: Mapped[str] = mapped_column()
-    installed_os: Mapped[str] = mapped_column()
+    warranty: Mapped[Optional[str]]
+    installed_os: Mapped[Optional[str]]
     weight: Mapped[float] = mapped_column()
-    color: Mapped[str] = mapped_column()
-    description: Mapped[str] = mapped_column()
+    color: Mapped[Optional[str]]
+    description: Mapped[Optional[str]]
     # Images
     image: Mapped[str] = mapped_column()
-    extra_image: Mapped[str] = mapped_column()
+    extra_image: Mapped[Optional[str]]
 
     created_at: Mapped[datetime] = mapped_column(
         default=datetime.utcnow,
@@ -55,5 +63,9 @@ class Laptop(Base):
         default=datetime.utcnow,
         onupdate=datetime.utcnow,
     )
-    user_id: Mapped[int] = mapped_column(ForeignKey("users.id"))
-    user: Mapped["User"] = relationship(back_populates="laptops")
+    user_id: Mapped[int] = mapped_column(
+        ForeignKey("users.id"),
+    )
+    user: Mapped["User"] = relationship(
+        back_populates="laptops",
+    )
