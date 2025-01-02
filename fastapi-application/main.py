@@ -14,6 +14,8 @@ from starlette.middleware.base import BaseHTTPMiddleware
 from fastapi.middleware.cors import CORSMiddleware
 from prometheus_fastapi_instrumentator import Instrumentator
 
+from utils.healthcheck import router as utils_router
+
 logger = logging.getLogger(__name__)
 
 from before_start_up.check_env_file import find_env
@@ -27,29 +29,39 @@ main_app = create_app(
 main_app.include_router(
     api_router,
 )
+main_app.include_router(
+    utils_router,
+)
 
 
 @main_app.get("/index")
-async def index_page():
+async def index_page() -> dict[str, str]:
     return {"message": "Hello, user!"}
 
 
-main_app.add_middleware(
-    BaseHTTPMiddleware,
-    dispatch=check_ip_middleware,
-)
+if settings.all_cors_origins:
+    main_app.add_middleware(
+        CORSMiddleware,
+        allow_origins=settings.all_cors_origins,
+        allow_credentials=True,
+        allow_methods=["*"],
+        allow_headers=["*"],
+    )
 
-main_app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["*"],
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
+# main_app.add_middleware(
+#     BaseHTTPMiddleware,
+#     dispatch=check_ip_middleware,
+# )
+# main_app.add_middleware(
+#     CORSMiddleware,
+#     allow_origins=["*"],
+#     allow_credentials=True,
+#     allow_methods=["*"],
+#     allow_headers=["*"],
+# )
 
 
 Instrumentator().instrument(main_app).expose(main_app)
-
 
 if __name__ == "__main__":
     configure_logger(level=logging.INFO)
