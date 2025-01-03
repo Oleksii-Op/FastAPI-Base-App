@@ -4,7 +4,7 @@ from uuid import UUID
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from core.schemas.laptop import LaptopCreate
+from core.schemas.laptop import LaptopCreate, LaptopUpdate, LaptopUpdatePartial
 from core.models.laptop import Laptop
 
 
@@ -12,6 +12,14 @@ async def get_all_laptops(
     session: AsyncSession,
 ) -> Sequence[Laptop]:
     stmt = select(Laptop).order_by(Laptop.maker)
+    result = await session.scalars(stmt)
+    return result.all()
+
+
+async def get_all_laptops_with_offset(
+    session: AsyncSession, offset: int, limit: int
+) -> Sequence[Laptop]:
+    stmt = select(Laptop).order_by(Laptop.maker).offset(offset).limit(limit)
     result = await session.scalars(stmt)
     return result.all()
 
@@ -53,9 +61,7 @@ async def get_laptop_by_id(
     session: AsyncSession,
     laptop_id: UUID,
 ) -> Laptop | None:
-    stmt = select(Laptop).where(Laptop.id == laptop_id)
-    result = await session.scalar(stmt)
-    return result
+    return await session.get(Laptop, laptop_id)
 
 
 async def delete_laptop(
@@ -66,8 +72,13 @@ async def delete_laptop(
     await session.rollback()
 
 
-async def patch_laptop(
+async def update_laptop(
     session: AsyncSession,
-    laptop_model: Laptop,
-):
-    pass
+    laptop: Laptop,
+    laptop_update: LaptopUpdate | LaptopUpdatePartial,
+    partial: bool = False,
+) -> Laptop:
+    for field, value in laptop_update.model_dump(exclude_unset=partial).items():
+        setattr(laptop, field, value)
+    await session.commit()
+    return laptop
