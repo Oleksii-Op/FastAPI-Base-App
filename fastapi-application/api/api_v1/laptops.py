@@ -67,14 +67,20 @@ async def create_laptop(
     return new_laptop
 
 
-@router.get("/get-laptop-by-uuid/{uuid}", response_model=LaptopFullModel)
+@router.get(
+    "/get-laptop-by-uuid/{uuid}",
+    response_model=LaptopFullModel,
+)
 async def get_laptop(
     laptop: Laptop = Depends(get_laptops_by_uuid),
 ) -> Laptop | None:
     return laptop
 
 
-@router.get("/get-laptops-preview/", response_model=list[LaptopPreviewModelWithID])
+@router.get(
+    "/get-laptops-preview/",
+    response_model=list[LaptopPreviewModelWithID],
+)
 async def get_laptops_preview(
     session: Annotated[
         AsyncSession,
@@ -85,6 +91,28 @@ async def get_laptops_preview(
 ) -> Sequence["Laptop"]:
     laptops: Sequence["Laptop"] = await crud_laptops.get_all_laptops_with_offset(
         session=session, offset=offset, limit=limit
+    )
+    return laptops
+
+
+@router.get(
+    "/get-my-laptops",
+    response_model=list[LaptopPreviewModelWithID],
+)
+async def get_my_laptops(
+    user: Annotated[
+        User,
+        Depends(user_state),
+    ],
+    session: Annotated[
+        AsyncSession,
+        Depends(db_helper.session_getter),
+    ],
+):
+    user_id = user.id
+    laptops = await crud_laptops.get_users_laptops(
+        session=session,
+        user_id=user_id,
     )
     return laptops
 
