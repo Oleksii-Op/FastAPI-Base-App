@@ -18,6 +18,7 @@ class UserRead(schemas.BaseUser[UserIdType]):
     last_name: str
     updated_at: datetime
     phone_number: str
+    created_at: datetime
 
 
 class UserCreate(schemas.BaseUserCreate):

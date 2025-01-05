@@ -64,6 +64,15 @@ async def get_laptop_by_id(
     return await session.get(Laptop, laptop_id)
 
 
+async def get_users_laptops(
+    session: AsyncSession,
+    user_id: int,
+) -> Sequence[Laptop] | None:
+    stmt = select(Laptop).where(Laptop.user_id == user_id)
+    result = await session.scalars(stmt)
+    return result.all()
+
+
 async def delete_laptop(
     session: AsyncSession,
     laptop_model: Laptop,
