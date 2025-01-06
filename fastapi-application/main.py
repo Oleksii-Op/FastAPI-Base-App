@@ -46,19 +46,20 @@ if settings.all_cors_origins:
         allow_credentials=True,
         allow_methods=["*"],
         allow_headers=["*"],
-    )
+    ),
     main_app.add_middleware(
-        CORSMiddleware,
-        allow_origins=["*"],
-        allow_credentials=True,
-        allow_methods=["*"],
-        allow_headers=["*"],
+        BaseHTTPMiddleware,
+        dispatch=check_ip_middleware,
     )
+    # main_app.add_middleware(
+    #     CORSMiddleware,
+    #     allow_origins=["*"],
+    #     allow_credentials=True,
+    #     allow_methods=["*"],
+    #     allow_headers=["*"],
+    # )
 
-# main_app.add_middleware(
-#     BaseHTTPMiddleware,
-#     dispatch=check_ip_middleware,
-# )
+
 # main_app.add_middleware(
 #     CORSMiddleware,
 #     allow_origins=["*"],
@@ -80,7 +81,7 @@ if __name__ == "__main__":
         host=settings.run.host,
         port=settings.run.port,
         # set reload=False if to be run in docker container
-        reload=True,
+        reload=False,
         log_config="log_conf.yaml",
     )
     logger.info("FastAPI application stopped")
