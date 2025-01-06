@@ -128,7 +128,7 @@ services:
     healthcheck:
       test: wget --no-verbose --tries=1 http://127.0.0.1:8000/utils/healthcheck || exit 1
     ports:
-      - "8000"
+      - "8000:8000"
     networks:
       backend-network:
         ipv4_address: 10.10.103.2
