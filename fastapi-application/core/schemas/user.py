@@ -5,8 +5,11 @@ from fastapi_users import schemas
 
 from core.types.user_id import UserIdType
 
-from phonenumbers import NumberParseException
-from phonenumbers import is_possible_number, parse
+from phonenumbers import (
+    is_possible_number,
+    parse,
+    NumberParseException,
+)
 
 
 class UserRead(schemas.BaseUser[UserIdType]):
@@ -15,6 +18,7 @@ class UserRead(schemas.BaseUser[UserIdType]):
     last_name: str
     updated_at: datetime
     phone_number: str
+    created_at: datetime
 
 
 class UserCreate(schemas.BaseUserCreate):
@@ -32,9 +36,12 @@ class UserCreate(schemas.BaseUserCreate):
 
     @field_validator("phone_number")
     @classmethod
-    def validate_phone_number(cls, number: str) -> str:
-        if isinstance(number, str):
-            return number
+    def validate_phone_number(
+        cls,
+        number: str,
+    ) -> str:
+        # if isinstance(number, str):
+        #     return number
         try:
             check_num = parse(number, None)
         except NumberParseException as ex:

@@ -46,12 +46,20 @@ if settings.all_cors_origins:
         allow_credentials=True,
         allow_methods=["*"],
         allow_headers=["*"],
+    ),
+    main_app.add_middleware(
+        BaseHTTPMiddleware,
+        dispatch=check_ip_middleware,
     )
+    # main_app.add_middleware(
+    #     CORSMiddleware,
+    #     allow_origins=["*"],
+    #     allow_credentials=True,
+    #     allow_methods=["*"],
+    #     allow_headers=["*"],
+    # )
 
-# main_app.add_middleware(
-#     BaseHTTPMiddleware,
-#     dispatch=check_ip_middleware,
-# )
+
 # main_app.add_middleware(
 #     CORSMiddleware,
 #     allow_origins=["*"],

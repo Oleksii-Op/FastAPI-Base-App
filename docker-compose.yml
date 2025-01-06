@@ -61,10 +61,27 @@ services:
       app:
         condition: service_started
     networks:
-      frontend-network:
-        ipv4_address: 10.10.104.3
       proxy-network:
         ipv4_address: 10.10.105.2
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+      tags:
+        - "base-app/frontend:0.1"
+    restart: unless-stopped
+    container_name: frontend
+    environment:
+      VITE_API_BASE_URL: https://nginx:443/
+    ports:
+      - "3000"
+    depends_on:
+      nginx:
+        condition: service_started
+    networks:
+      proxy-network:
+        ipv4_address: 10.10.105.3
 
 # Do not change "app" name as it is used by nginx configs
   app:
@@ -79,6 +96,7 @@ services:
     # and creating a superuser. REMOVE AFTER THE FIRST RUN!
     command: bash -c "sleep 10 && poetry run alembic upgrade head && poetry run python main.py"
     environment:
+      APP_CONFIG__PROJECT_NAME: "Base-app"
       APP_CONFIG__DB__URL: postgresql+asyncpg://main:supersecret@pg:5432/shop
       # APP_CONFIG__DB__ECHO=1 will output SQLAlchemy queries to logs,
       # set APP_CONFIG__DB__ECHO=0 for production to avoid unnecessary logs
@@ -86,8 +104,10 @@ services:
       APP_CONFIG__ACCESS_TOKEN__RESET_PASSWORD_TOKEN_SECRET: d270a3414c9c5de52047bf51914f51b46eb3518b62a7448d418d29406de81c2d
       APP_CONFIG__ACCESS_TOKEN__VERIFICATION_TOKEN_SECRET: f1cbb46d52e6ab73802d9021155a77d5828838730a08d407fd2c7ec59740dc3b
       # FastAPI superuser email and password
-      APP_CONFIG__DEFAULT_EMAIL: "admin@admin.com"
-      APP_CONFIG__DEFAULT_PASSWORD: "123"
+      APP_CONFIG__FIRSTSUPERUSER__EMAIL: "admin@admin.com"
+      APP_CONFIG__FIRSTSUPERUSER__PASSWORD: "superuser"
+      # CORS
+      APP_CONFIG__FRONTEND_HOST: http://localhost:5050
       # SMTP server settings
       # DO NOT CHANGE
       APP_CONFIG__SMTP_SERVICE__HOST: http://10.10.103.10
@@ -105,13 +125,15 @@ services:
         condition: service_healthy
       redis:
         condition: service_started
+    healthcheck:
+      test: wget --no-verbose --tries=1 http://127.0.0.1:8000/utils/healthcheck || exit 1
     ports:
       - "8000"
     networks:
       backend-network:
         ipv4_address: 10.10.103.2
       proxy-network:
-        ipv4_address: 10.10.105.3
+        ipv4_address: 10.10.105.4
 
   smtp:
     build:
