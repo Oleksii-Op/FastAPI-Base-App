@@ -16,8 +16,16 @@
 * [Optional] [BetterStack](https://betterstack.com/community/guides/logging/docker-logs/) - Remote log storage (uses Vector)
 * [Docker](https://www.docker.com/) - containerization of services.
 
+### Main Page (Frontend)
+![main_page.png](images/main_page.png)
+### User's Profile (Frontend)
+![users_profile.png](images/users_profile.png)
+### User Management Panel
+![user_deletion.png](images/user_deletion.png)
+### Laptops Page (Frontend)
+![laptops_page.png](images/laptops_page.png)
 ### Interactive API Documentation
-![/images/apis.png](/images/apis.png)
+![new_apis.png](images/new_apis.png)
 ### Access Token Response
 ![images/access_token](/images/access_token.png)
 ### FastAPI Endpoints Metrics
@@ -54,7 +62,7 @@ docker compose up -d --build
 docker compose ps
 ```
 #### 4. Enter 
-* https://localhost/index in your web browser or https://localhost/docs to access Backend via Nginx. (Your browser will complain about self-signed certificate, but it's okay.)
+* https://localhost/ in your web browser (Your browser will complain about self-signed certificate, but it's okay.)
 * https://localhost:3000/ to access Grafana (username: admin , password: pass@123)
 * http://localhost:8020/ to access PGAdmin4 (email: admin@example.com , password: test_admin)
 
