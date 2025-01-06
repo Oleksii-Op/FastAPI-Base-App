@@ -61,10 +61,27 @@ services:
       app:
         condition: service_started
     networks:
-      frontend-network:
-        ipv4_address: 10.10.104.3
       proxy-network:
         ipv4_address: 10.10.105.2
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+      tags:
+        - "base-app/frontend:0.1"
+    restart: unless-stopped
+    container_name: frontend
+    environment:
+      VITE_API_BASE_URL: https://nginx:443/
+    ports:
+      - "3000"
+    depends_on:
+      nginx:
+        condition: service_started
+    networks:
+      proxy-network:
+        ipv4_address: 10.10.105.3
 
 # Do not change "app" name as it is used by nginx configs
   app:
@@ -89,7 +106,7 @@ services:
       # FastAPI superuser email and password
       APP_CONFIG__FIRSTSUPERUSER__EMAIL: "admin@admin.com"
       APP_CONFIG__FIRSTSUPERUSER__PASSWORD: "superuser"
-      # Frontend CORS
+      # CORS
       APP_CONFIG__FRONTEND_HOST: http://localhost:5050
       # SMTP server settings
       # DO NOT CHANGE
@@ -116,7 +133,7 @@ services:
       backend-network:
         ipv4_address: 10.10.103.2
       proxy-network:
-        ipv4_address: 10.10.105.3
+        ipv4_address: 10.10.105.4
 
   smtp:
     build:
