@@ -55,8 +55,19 @@ git clone https://github.com/Oleksii-Op/FastAPI-Base-App.git
 python3 -c 'import secrets; print(secrets.token_hex())'
 ```
 #### 1. Run `init_project.sh` script to set up some credentials before start up
+#### 2. Create .env files for frontend and backend
+```shell
+echo "VITE_API_BASE_URL=" > /frontend/.env
+# Copy .env.template into .env file and edit variables
+cp /fastapi-application/.env.template /fastapi-application/.env
+```
+> [!NOTE] 
+> check_env_file.py won't start the backend if no .env file found in /fastapi-application directory!
 
-#### 2. Once Postgres password and SMTP Server credentials have been set - execute
+> [!NOTE]
+> Frontend will use broken url if no .env file exists!
+
+#### 3. Once Postgres password and SMTP Server credentials have been set - execute
 ```shell
 docker compose up -d --build
 ```
