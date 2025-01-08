@@ -84,6 +84,16 @@ docker compose ps
 * Metrics/Logs/Monitoring: https://localhost:3000/ to access Grafana (username: admin , password: pass@123)
 * PostgreSQL Data: http://localhost:8020/ to access PGAdmin4 (email: admin@example.com , password: test_admin)
 
+#### 5. Setting up some data to Postgres
+```shell
+# Drop the initial database
+docker compose exec -it pg psql -d postgres -U main -c "DROP DATABASE IF EXISTS shop;"
+# Create an empty database
+docker compose exec -it pg psql -d postgres -U main -c "CREATE DATABASE shop;"
+# Dump the data into shop
+docker compose exec -T pg psql -U main -d shop < {Project_dir}/shop.sql
+```
+
 #### You may use `index_page_loader.sh` to simulate some requests to https://localhost/index
 #### Metrics in Grafafa FastAPI Dashboard will grow
 
