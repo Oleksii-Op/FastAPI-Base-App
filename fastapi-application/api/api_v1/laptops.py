@@ -1,13 +1,10 @@
 from typing import Annotated, Sequence
 import logging
-
+from uuid import UUID
 
 from common_logger.logger_config import configure_logger
-
-logger = logging.getLogger(__name__)
-
-from fastapi import APIRouter, Depends, HTTPException, Query, status
-
+from .check_perms_loggin import check_if_item_belongs
+from fastapi import APIRouter, Depends, Query, status, Path
 from api.dependencies.authentication.fastapi_users_ import (
     current_superuser,
     current_active_user,
@@ -22,9 +19,9 @@ from core.schemas.laptop import (
     LaptopUpdatePartial,
 )
 from sqlalchemy.ext.asyncio import AsyncSession
-from crud import laptops as crud_laptops
+from crud.items_crud.laptops import crud_laptop
 
-from .dependencies import get_laptops_by_uuid
+logger = logging.getLogger(__name__)
 
 user_state = current_verified_user
 
@@ -50,19 +47,12 @@ async def create_laptop(
         AsyncSession,
         Depends(db_helper.session_getter),
     ],
-    model: LaptopCreate,
+    model_in: LaptopCreate,
 ) -> "Laptop":
-    user_id, username = user.id, user.username
-    new_laptop = await crud_laptops.create_laptop(
-        session=session,
-        laptop_create=model,
-        user_id=user_id,
-    )
-    logger.warning(
-        "User id(%r) | username(%r) has created a laptop with name: %r.",
-        user_id,
-        username,
-        model.name,
+    new_laptop = await crud_laptop.create(
+        session,
+        user_id=user.id,
+        data=model_in.model_dump(),
     )
     return new_laptop
 
@@ -71,10 +61,17 @@ async def create_laptop(
     "/get-laptop-by-uuid/{uuid}",
     response_model=LaptopFullModel,
 )
-async def get_laptop(
-    laptop: Laptop = Depends(get_laptops_by_uuid),
+async def get_laptop_by_uuid(
+    uuid: Annotated[UUID, Path],
+    session: Annotated[
+        AsyncSession,
+        Depends(db_helper.session_getter),
+    ],
 ) -> Laptop | None:
-    return laptop
+    return await crud_laptop.get_by_uuid(
+        session=session,
+        item_uuid=uuid,
+    )
 
 
 @router.get(
@@ -89,8 +86,10 @@ async def get_laptops_preview(
     offset: int = Query(0, ge=0),
     limit: int = Query(50, ge=1, le=100),
 ) -> Sequence["Laptop"]:
-    laptops: Sequence["Laptop"] = await crud_laptops.get_all_laptops_with_offset(
-        session=session, offset=offset, limit=limit
+    laptops: Sequence["Laptop"] = await crud_laptop.get_all(
+        session=session,
+        offset=offset,
+        limit=limit,
     )
     return laptops
 
@@ -109,29 +108,39 @@ async def get_my_laptops(
         Depends(db_helper.session_getter),
     ],
 ):
-    user_id = user.id
-    laptops = await crud_laptops.get_users_laptops(
+    laptops = await crud_laptop.get_users(
         session=session,
-        user_id=user_id,
+        user_id=user.id,
     )
     return laptops
 
 
-@router.get("/get-laptops-detail", response_model=list[LaptopFullModel])
+@router.get(
+    "/get-laptops-detail",
+    response_model=list[LaptopFullModel],
+)
 async def get_laptops_detail(
     session: Annotated[
         AsyncSession,
         Depends(db_helper.session_getter),
-    ]
+    ],
+    offset: int = Query(0, ge=0),
+    limit: int = Query(50, ge=1, le=100),
 ) -> Sequence["Laptop"]:
-    laptops: Sequence["Laptop"] = await crud_laptops.get_all_laptops(
+    laptops: Sequence["Laptop"] = await crud_laptop.get_all(
         session=session,
+        offset=offset,
+        limit=limit,
     )
     return laptops
 
 
-@router.patch("/patch-laptop/{laptop_id}")
+@router.patch("/patch-laptop/{uuid}")
 async def update_laptop_partial(
+    uuid: Annotated[
+        UUID,
+        Path,
+    ],
     laptop_update: LaptopUpdatePartial,
     user: Annotated[
         User,
@@ -141,34 +150,33 @@ async def update_laptop_partial(
         AsyncSession,
         Depends(db_helper.session_getter),
     ],
-    laptop: Laptop = Depends(get_laptops_by_uuid),
 ):
-    user_id, username, superuser = user.id, user.username, user.is_superuser
-    laptop_id = laptop.id
-    if not superuser and laptop.user_id != user_id:
-        raise HTTPException(
-            status_code=401,
-            detail="This item does not belong to you.",
-        )
-    logger.warning(
-        "User id(%r) | username(%r) has updated laptop %r.",
-        user_id,
-        username,
-        laptop_id,
-    )
-    return await crud_laptops.update_laptop(
+    laptop: Laptop = await crud_laptop.get_by_uuid(
         session=session,
-        laptop=laptop,
-        laptop_update=laptop_update,
+        item_uuid=uuid,
+    )
+    check_if_item_belongs(
+        user=user,
+        model=laptop,
+        message="updated",
+    )
+    return await crud_laptop.update(
+        session=session,
+        model_update=laptop_update,
+        model_instance=laptop,
         partial=True,
     )
 
 
 @router.delete(
-    "/delete-laptop/{laptop_id}",
+    "/delete-laptop/{uuid}",
     status_code=status.HTTP_204_NO_CONTENT,
 )
 async def delete_laptop(
+    uuid: Annotated[
+        UUID,
+        Path,
+    ],
     user: Annotated[
         User,
         Depends(user_state),
@@ -177,22 +185,17 @@ async def delete_laptop(
         AsyncSession,
         Depends(db_helper.session_getter),
     ],
-    laptop: Laptop = Depends(get_laptops_by_uuid),
 ) -> None:
-    user_id, username, superuser = user.id, user.username, user.is_superuser
-    laptop_id = laptop.id
-    if not superuser and laptop.user_id != user_id:
-        raise HTTPException(
-            status_code=401,
-            detail="This item does not belong to you.",
-        )
-    await crud_laptops.delete_laptop(
+    laptop: Laptop = await crud_laptop.get_by_uuid(
         session=session,
-        laptop_model=laptop,
+        item_uuid=uuid,
     )
-    logger.warning(
-        "User id(%r) | username(%r) has deleted laptop %r.",
-        user_id,
-        username,
-        laptop_id,
+    check_if_item_belongs(
+        user=user,
+        model=laptop,
+        message="deleted",
+    )
+    await crud_laptop.delete(
+        session=session,
+        model_instance=laptop,
     )
