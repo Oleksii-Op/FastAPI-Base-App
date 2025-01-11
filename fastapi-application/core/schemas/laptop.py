@@ -30,24 +30,31 @@ class LaptopCreate(LaptopBase):
     maker: str
     screen_frequency: Optional[str]
     # CPU
+    # cpu_maker: str
     cpu_class: str
     cpu_frequency: Optional[str]
     cpu_cores: Optional[int]
     cpu_threads: Optional[int]
     # GPU
+    # gpu_maker: Optional[str]
     gpu_model: Optional[str]
+    # gpu_memory: Optional[int]
     gpu_memory: Optional[str]
     gpu_memory_type: Optional[str]
     # RAM
+    # ram_size: Optional[int]
     ram_size: Optional[str]
     ram_type: Optional[str]
+    # ram_frequency: Optional[int]
     ram_frequency: Optional[str]
     # Storage
+    # storage_size: Optional[int]
     storage_size: Optional[str]
     storage_type: Optional[str]
     # Hardware
     hardware_type: Optional[str]
 
+    # warranty: Optional[int]
     warranty: Optional[str]
     installed_os: Optional[str]
     weight: float

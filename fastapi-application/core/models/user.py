@@ -15,6 +15,7 @@ from core.types.user_id import UserIdType
 if TYPE_CHECKING:
     from sqlalchemy.ext.asyncio import AsyncSession
     from .laptop import Laptop
+    from .monitor import Monitor
 
 
 class User(Base, IntIdPkMixin, SQLAlchemyBaseUserTable[UserIdType]):
@@ -34,6 +35,9 @@ class User(Base, IntIdPkMixin, SQLAlchemyBaseUserTable[UserIdType]):
 
     phone_number: Mapped[str] = mapped_column()
     laptops: Mapped[list["Laptop"]] = relationship(
+        cascade="all, delete-orphan", back_populates="user"
+    )
+    monitors: Mapped[list["Monitor"]] = relationship(
         cascade="all, delete-orphan", back_populates="user"
     )
 

@@ -39,6 +39,7 @@ class ApiV1Prefix(BaseModel):
     auth: str = "/auth"
     messages: str = "/messages"
     laptops: str = "/laptops"
+    monitors: str = "/monitors"
 
 
 class ApiPrefix(BaseModel):
