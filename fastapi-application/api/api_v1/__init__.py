@@ -13,6 +13,8 @@ from .messages import router as messages_router
 
 from .laptops import router as laptops_router
 
+from .monitors import router as monitors_router
+
 http_bearer = HTTPBearer(auto_error=False)
 router = APIRouter(
     prefix=settings.api.v1.prefix,
@@ -27,3 +29,4 @@ router.include_router(users_router)
 router.include_router(messages_router)
 
 router.include_router(laptops_router)
+router.include_router(monitors_router)
