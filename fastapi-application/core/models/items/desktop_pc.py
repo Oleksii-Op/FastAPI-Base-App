@@ -15,35 +15,35 @@ class DesktopPC(Base):
         default=uuid4,
         primary_key=True,
     )
-    name: Mapped[str]  #
-    price: Mapped[float]  #
-    diagonal: Mapped[Optional[float]]  #
-    cpu_model: Mapped[Optional[str]]  #
-    ram_size: Mapped[Optional[int]]  #
-    storage_size: Mapped[Optional[int]]  #
-    gpu_maker: Mapped[Optional[str]]  #
-    gpu_model: Mapped[Optional[str]]  #
-    image: Mapped[str]  #
-    is_available: Mapped[bool]  #
+    name: Mapped[str]
+    price: Mapped[float]
+    diagonal: Mapped[Optional[float]]
+    cpu_model: Mapped[Optional[str]]
+    ram_size: Mapped[Optional[int]]
+    storage_size: Mapped[Optional[int]]
+    gpu_maker: Mapped[Optional[str]]
+    gpu_model: Mapped[Optional[str]]
+    image: Mapped[str]
+    is_available: Mapped[bool]
 
-    description: Mapped[str] = mapped_column(Text)  #
-    maker: Mapped[str]  #
-    is_for_gaming: Mapped[bool]  #
-    is_for_home_studying: Mapped[bool]  #
-    is_for_office: Mapped[bool]  #
-    has_screen: Mapped[bool]  #
-    is_mini: Mapped[bool]  #
-    ram_type: Mapped[Optional[str]]  #
-    ram_frequency: Mapped[Optional[str]]  #
-    cpu_maker: Mapped[str]  #
-    cpu_class: Mapped[Optional[str]]  #
-    cpu_frequency: Mapped[Optional[float]]  #
-    cpu_max_frequency: Mapped[Optional[float]]  #
-    cpu_cores: Mapped[Optional[int]]  #
-    cpu_threads: Mapped[Optional[int]]  #
-    resolution: Mapped[Optional[str]]  #
-    gpu_memory: Mapped[Optional[int]]  #
-    gpu_memory_type: Mapped[Optional[str]]  #
+    description: Mapped[str] = mapped_column(Text)
+    maker: Mapped[str]
+    is_for_gaming: Mapped[bool]
+    is_for_home_studying: Mapped[bool]
+    is_for_office: Mapped[bool]
+    has_screen: Mapped[bool]
+    is_mini: Mapped[bool]
+    ram_type: Mapped[Optional[str]]
+    ram_frequency: Mapped[Optional[str]]
+    cpu_maker: Mapped[str]
+    cpu_class: Mapped[Optional[str]]
+    cpu_frequency: Mapped[Optional[float]]
+    cpu_max_frequency: Mapped[Optional[float]]
+    cpu_cores: Mapped[Optional[int]]
+    cpu_threads: Mapped[Optional[int]]
+    resolution: Mapped[Optional[str]]
+    gpu_memory: Mapped[Optional[int]]
+    gpu_memory_type: Mapped[Optional[str]]
     power_supply_name: Mapped[Optional[str]]
     power_supply: Mapped[Optional[int]]
     storage_type: Mapped[Optional[str]]
