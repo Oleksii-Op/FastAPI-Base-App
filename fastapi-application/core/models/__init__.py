@@ -4,6 +4,7 @@ __all__ = (
     "User",
     "Laptop",
     "Monitor",
+    "DesktopPC",
 )
 
 from .db_helper import db_helper
@@ -11,3 +12,4 @@ from .base import Base
 from .user import User
 from .laptop import Laptop
 from .monitor import Monitor
+from .items.desktop_pc import DesktopPC
