@@ -26,8 +26,8 @@ class User(
         unique=True,
         index=True,
     )
-    first_name: Mapped[str] = mapped_column()
-    last_name: Mapped[str] = mapped_column()
+    first_name: Mapped[str]
+    last_name: Mapped[str]
     created_at: Mapped[datetime] = mapped_column(
         default=datetime.now,
     )
@@ -36,7 +36,7 @@ class User(
         onupdate=datetime.now,
     )
 
-    phone_number: Mapped[str] = mapped_column()
+    phone_number: Mapped[str]
     laptops: Mapped[list["Laptop"]] = relationship(
         cascade="all, delete-orphan", back_populates="user"
     )

@@ -4,7 +4,7 @@ from uuid import UUID
 
 from common_logger.logger_config import configure_logger
 from .check_perms_loggin import check_if_item_belongs
-from fastapi import APIRouter, Depends, Query, status, Path
+from fastapi import APIRouter, Depends, Query, status, Path, HTTPException
 from api.dependencies.authentication.fastapi_users_ import (
     current_superuser,
     current_active_user,
@@ -68,9 +68,15 @@ async def get_laptop_by_uuid(
         Depends(db_helper.session_getter),
     ],
 ) -> Laptop | None:
-    return await crud_laptop.get_by_uuid(
+    laptop: Laptop = await crud_laptop.get_by_uuid(
         session=session,
         item_uuid=uuid,
+    )
+    if laptop is not None:
+        return laptop
+    raise HTTPException(
+        status_code=404,
+        detail=f"Laptop {uuid} not found",
     )
 
 

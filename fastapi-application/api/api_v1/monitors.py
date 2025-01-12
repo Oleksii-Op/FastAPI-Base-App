@@ -1,11 +1,11 @@
 from uuid import UUID
-
+from typing import Annotated, List, Sequence
 from pydantic import BaseModel, Field
+from fastapi import APIRouter, status, Path, Query, Depends, HTTPException
+from sqlalchemy import select, or_, and_
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from api.api_v1.check_perms_loggin import check_if_item_belongs
-
-from fastapi import APIRouter, status, Path, Query
-
 from api.dependencies.authentication.fastapi_users_ import (
     current_verified_user,
 )
@@ -18,18 +18,9 @@ from core.schemas.monitors import (
     MonitorUpdatePartial,
 )
 from crud.items_crud.monitors import crud_monitor as crud_monitor_class
-
-from typing import Annotated, List
-from fastapi import Depends
-from sqlalchemy import select, or_, and_
 from core.models import db_helper
 
-from typing import Sequence
-
-from sqlalchemy.ext.asyncio import AsyncSession
-
 user_state = current_verified_user
-
 router = APIRouter(
     prefix=settings.api.v1.monitors,
     tags=["Monitors"],
@@ -70,9 +61,15 @@ async def get_monitor_by_uuid(
         Depends(db_helper.session_getter),
     ],
 ) -> Monitor | None:
-    return await crud_monitor_class.get_by_uuid(
+    monitor: Monitor = await crud_monitor_class.get_by_uuid(
         session=session,
         item_uuid=uuid,
+    )
+    if monitor is not None:
+        return monitor
+    raise HTTPException(
+        status_code=404,
+        detail=f"Monitor {uuid} not found",
     )
 
 
