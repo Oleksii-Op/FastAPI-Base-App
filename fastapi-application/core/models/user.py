@@ -14,11 +14,14 @@ from core.types.user_id import UserIdType
 
 if TYPE_CHECKING:
     from sqlalchemy.ext.asyncio import AsyncSession
-    from .laptop import Laptop
-    from .monitor import Monitor
+    from core.models import Laptop, Monitor, DesktopPC
 
 
-class User(Base, IntIdPkMixin, SQLAlchemyBaseUserTable[UserIdType]):
+class User(
+    Base,
+    IntIdPkMixin,
+    SQLAlchemyBaseUserTable[UserIdType],
+):
     username: Mapped[str] = mapped_column(
         unique=True,
         index=True,
@@ -38,6 +41,9 @@ class User(Base, IntIdPkMixin, SQLAlchemyBaseUserTable[UserIdType]):
         cascade="all, delete-orphan", back_populates="user"
     )
     monitors: Mapped[list["Monitor"]] = relationship(
+        cascade="all, delete-orphan", back_populates="user"
+    )
+    desktoppcs: Mapped[list["DesktopPC"]] = relationship(
         cascade="all, delete-orphan", back_populates="user"
     )
 
