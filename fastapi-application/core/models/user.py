@@ -14,7 +14,7 @@ from core.types.user_id import UserIdType
 
 if TYPE_CHECKING:
     from sqlalchemy.ext.asyncio import AsyncSession
-    from core.models import Laptop, Monitor, DesktopPC
+    from core.models.items import Laptop, Monitor, DesktopPC
 
 
 class User(

@@ -1,22 +1,34 @@
 from uuid import UUID
 from typing import Annotated, Sequence
+
+from pydantic import BaseModel, Field
+from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 from api.api_v1.check_perms_loggin import check_if_item_belongs
-from fastapi import APIRouter, status, Path, Query, Depends, HTTPException
+from fastapi import (
+    APIRouter,
+    status,
+    Path,
+    Query,
+    Depends,
+    HTTPException,
+)
 from api.dependencies.authentication.fastapi_users_ import (
     current_verified_user,
 )
-from core.config import settings
-from core.schemas.items.desktop_pc import (
+from core.config import settings  # type: ignore
+from core.schemas.items import (
     DesktopPCCreate,
     DesktopPCFullModel,
     DesktopPCPreviewModelWithID,
     DesktopPCUpdatePartial,
-    DesktopPCPreview,
 )
 from crud.items_crud.desktops import crud_desktop
-from core.models import db_helper, User, DesktopPC
-
+from core.models import db_helper, User
+from core.models.items import DesktopPC
+from api.api_v1.items.filters.desktop_filter import (
+    get_desktops_filter,
+)
 
 user_state = current_verified_user
 
@@ -41,12 +53,13 @@ async def create_desktop(
         Depends(db_helper.session_getter),
     ],
     model_in: DesktopPCCreate,
-):
-    return await crud_desktop.create(
+) -> DesktopPC:
+    desktop: DesktopPC = await crud_desktop.create(
         session,
         user_id=user.id,
         data=model_in.model_dump(),
     )
+    return desktop
 
 
 @router.get(
@@ -60,7 +73,7 @@ async def get_desktop_by_uuid(
         Depends(db_helper.session_getter),
     ],
 ) -> DesktopPC | None:
-    desktop: DesktopPC = await crud_desktop.get_by_uuid(
+    desktop: DesktopPC | None = await crud_desktop.get_by_uuid(
         session=session,
         item_uuid=uuid,
     )
@@ -70,6 +83,53 @@ async def get_desktop_by_uuid(
         status_code=404,
         detail=f"Desktop {uuid} not found",
     )
+
+
+class DesktopFilterParams(BaseModel):
+    price_min: float | None = None
+    price_max: float | None = None
+    maker: list[str] = Field(Query(default=[]))
+    is_for_gaming: bool | None = None
+    is_for_home_studying: bool | None = None
+    is_for_office: bool | None = None
+    has_screen: bool | None = None
+    is_mini: bool | None = None
+    # RAM
+    ram_type: list[str] = Field(Query(default=[]))
+    ram_frequency: list[int] = Field(Query(default=[]))
+    ram_size: list[int] = Field(Query(default=[]))
+    # GPU
+    gpu_maker: list[str] = Field(Query(default=[]))
+    gpu_model: list[str] = Field(Query(default=[]))
+    # CPU
+    cpu_maker: list[str] = Field(Query(default=[]))
+    cpu_class: list[str] = Field(Query(default=[]))
+    cpu_cores: list[int] = Field(Query(default=[]))
+    # Storage
+    storage_size: list[int] = Field(Query(default=[]))
+    storage_type: list[str] = Field(Query(default=[]))
+
+
+@router.get(
+    "/get-desktops-filtered/",
+    response_model=list[DesktopPCPreviewModelWithID],
+)
+async def get_desktops_filtered(
+    session: Annotated[
+        AsyncSession,
+        Depends(db_helper.session_getter),
+    ],
+    filters: DesktopFilterParams = Depends(),
+    offset: int = Query(0, ge=0),
+    limit: int = Query(50, ge=1, le=100),
+) -> Sequence[DesktopPC]:
+    result: Sequence[DesktopPC] = await get_desktops_filter(
+        session=session,
+        filters=filters,
+        offset=offset,
+        limit=limit,
+    )
+    return result
 
 
 @router.get(
@@ -83,12 +143,13 @@ async def get_desktops_detail(
     ],
     offset: int = Query(0, ge=0),
     limit: int = Query(50, ge=1, le=100),
-) -> Sequence["DesktopPC"] | None:
-    return await crud_desktop.get_all(
+) -> Sequence["DesktopPC"]:
+    desktops: Sequence[DesktopPC] = await crud_desktop.get_all(
         session=session,
         offset=offset,
         limit=limit,
     )
+    return desktops
 
 
 @router.get(
@@ -100,10 +161,11 @@ async def get_all_desktops_preview(
         AsyncSession,
         Depends(db_helper.session_getter),
     ],
-):
-    return await crud_desktop.get_all(
+) -> Sequence[DesktopPC]:
+    desktops: Sequence[DesktopPC] = await crud_desktop.get_all(
         session=session,
     )
+    return desktops
 
 
 @router.get(
@@ -117,7 +179,7 @@ async def get_desktops_preview(
     ],
     offset: int = Query(0, ge=0),
     limit: int = Query(50, ge=1, le=100),
-) -> Sequence["DesktopPC"] | None:
+) -> Sequence["DesktopPC"]:
     desktops: Sequence["DesktopPC"] = await crud_desktop.get_all(
         session=session,
         offset=offset,
@@ -139,14 +201,18 @@ async def get_my_desktops(
         AsyncSession,
         Depends(db_helper.session_getter),
     ],
-) -> Sequence[DesktopPC] | None:
-    return await crud_desktop.get_users(
+) -> Sequence[DesktopPC]:
+    desktops: Sequence[DesktopPC] = await crud_desktop.get_users(
         session=session,
         user_id=user.id,
     )
+    return desktops
 
 
-@router.patch("/patch-desktop/{uuid}")
+@router.patch(
+    "/patch-desktop/{uuid}",
+    response_model=DesktopPCUpdatePartial,
+)
 async def update_desktop_partial(
     uuid: Annotated[
         UUID,
@@ -161,7 +227,7 @@ async def update_desktop_partial(
         AsyncSession,
         Depends(db_helper.session_getter),
     ],
-):
+) -> DesktopPC:
     desktop: DesktopPC | None = await crud_desktop.get_by_uuid(
         session=session,
         item_uuid=uuid,
@@ -171,12 +237,13 @@ async def update_desktop_partial(
         model=desktop,
         message="updated",
     )
-    return await crud_desktop.update(
+    result: DesktopPC = await crud_desktop.update(
         session=session,
         model_update=monitor_update,
         model_instance=desktop,
         partial=True,
     )
+    return result
 
 
 @router.delete(
@@ -207,3 +274,21 @@ async def delete_desktop(
         session=session,
         model_instance=desktop,
     )
+
+
+@router.get("/pc-price-range")
+async def get_pc_price_range(
+    session: AsyncSession = Depends(db_helper.session_getter),
+) -> dict[str, float]:
+    stmt = select(
+        func.min(DesktopPC.price).label("min_price"),
+        func.max(DesktopPC.price).label("max_price"),
+    )
+
+    result = await session.execute(stmt)
+    min_price, max_price = result.one()
+
+    return {
+        "min_price": min_price,
+        "max_price": max_price,
+    }

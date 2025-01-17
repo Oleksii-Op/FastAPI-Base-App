@@ -3,16 +3,24 @@ import logging
 from uuid import UUID
 
 from common_logger.logger_config import configure_logger
-from .check_perms_loggin import check_if_item_belongs
-from fastapi import APIRouter, Depends, Query, status, Path, HTTPException
+from api.api_v1.check_perms_loggin import check_if_item_belongs
+from fastapi import (
+    APIRouter,
+    Depends,
+    Query,
+    status,
+    Path,
+    HTTPException,
+)
 from api.dependencies.authentication.fastapi_users_ import (
     current_superuser,
     current_active_user,
     current_verified_user,
 )
 from core.config import settings
-from core.models import User, db_helper, Laptop
-from core.schemas.laptop import (
+from core.models import User, db_helper
+from core.models.items import Laptop
+from core.schemas.items import (
     LaptopFullModel,
     LaptopCreate,
     LaptopPreviewModelWithID,
@@ -49,7 +57,7 @@ async def create_laptop(
     ],
     model_in: LaptopCreate,
 ) -> "Laptop":
-    new_laptop = await crud_laptop.create(
+    new_laptop: "Laptop" = await crud_laptop.create(
         session,
         user_id=user.id,
         data=model_in.model_dump(),
@@ -68,7 +76,7 @@ async def get_laptop_by_uuid(
         Depends(db_helper.session_getter),
     ],
 ) -> Laptop | None:
-    laptop: Laptop = await crud_laptop.get_by_uuid(
+    laptop: "Laptop" = await crud_laptop.get_by_uuid(
         session=session,
         item_uuid=uuid,
     )
@@ -113,8 +121,8 @@ async def get_my_laptops(
         AsyncSession,
         Depends(db_helper.session_getter),
     ],
-):
-    laptops = await crud_laptop.get_users(
+) -> Sequence["Laptop"]:
+    laptops: Sequence["Laptop"] = await crud_laptop.get_users(
         session=session,
         user_id=user.id,
     )
@@ -141,7 +149,10 @@ async def get_laptops_detail(
     return laptops
 
 
-@router.patch("/patch-laptop/{uuid}")
+@router.patch(
+    "/patch-laptop/{uuid}",
+    response_model=LaptopUpdatePartial,
+)
 async def update_laptop_partial(
     uuid: Annotated[
         UUID,
@@ -156,7 +167,7 @@ async def update_laptop_partial(
         AsyncSession,
         Depends(db_helper.session_getter),
     ],
-):
+) -> Laptop:
     laptop: Laptop = await crud_laptop.get_by_uuid(
         session=session,
         item_uuid=uuid,
@@ -166,12 +177,13 @@ async def update_laptop_partial(
         model=laptop,
         message="updated",
     )
-    return await crud_laptop.update(
+    result: Laptop = await crud_laptop.update(
         session=session,
         model_update=laptop_update,
         model_instance=laptop,
         partial=True,
     )
+    return result
 
 
 @router.delete(
