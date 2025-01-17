@@ -1,16 +1,17 @@
 from datetime import datetime
-from typing import Optional
 from pydantic import BaseModel
 from uuid import UUID
+
+from core.schemas.items.desktop_pc import Image
 
 
 class LaptopBase(BaseModel):
     name: str
     price: float
-    diagonal: str
+    diagonal: float
     resolution: str
-    screen_type: Optional[str]
-    cpu_model: str
+    screen_type: str | None
+    cpu_model: str | None
     image: str
     is_available: bool
 
@@ -28,39 +29,54 @@ class LaptopPreviewModelWithID(LaptopPreview):
 
 class LaptopCreate(LaptopBase):
     maker: str
-    screen_frequency: Optional[str]
+    screen_frequency: int | None
     # CPU
-    # cpu_maker: str
-    cpu_class: str
-    cpu_frequency: Optional[str]
-    cpu_cores: Optional[int]
-    cpu_threads: Optional[int]
+    cpu_maker: str
+    cpu_model: str | None
+    cpu_class: str | None
+    cpu_frequency: float | None
+    cpu_max_frequency: float | None
+    cpu_cores: int | None
+    cpu_threads: int | None
     # GPU
-    # gpu_maker: Optional[str]
-    gpu_model: Optional[str]
-    # gpu_memory: Optional[int]
-    gpu_memory: Optional[str]
-    gpu_memory_type: Optional[str]
+    gpu_maker: str | None
+    gpu_model: str | None
+    gpu_memory: int | None
+    gpu_memory_type: str | None
     # RAM
-    # ram_size: Optional[int]
-    ram_size: Optional[str]
-    ram_type: Optional[str]
-    # ram_frequency: Optional[int]
-    ram_frequency: Optional[str]
+    ram_size: int | None
+    ram_type: str | None
+    ram_frequency: int | None
     # Storage
-    # storage_size: Optional[int]
-    storage_size: Optional[str]
-    storage_type: Optional[str]
+    storage_size: int | None
+    storage_type: str | None
     # Hardware
-    hardware_type: Optional[str]
+    extra_hardware: str | None
+    usb_a_2_0: int | None
+    usb_a_3_1: int | None
+    usb_type_c: int | None
+    vga_connection: int | None
+    hdmi_connection: int | None
+    dp_connection: int | None
+    # Connectivity
+    ethernet: int | None
+    bluetooth: str | None
+    wireless: str | None
 
-    # warranty: Optional[int]
-    warranty: Optional[str]
-    installed_os: Optional[str]
-    weight: float
-    color: Optional[str]
-    description: Optional[str]
-    extra_image: Optional[str]
+    is_available: bool
+    is_for_gaming: bool
+    is_for_home_studying: bool
+    is_for_office: bool
+
+    warranty: int | None
+    installed_os: str | None
+    weight: float | None
+    width: float | None
+    height: float | None
+    depth: float | None
+    color: str | None
+    description: str | None
+    images_url: list[Image] | None
 
 
 class LaptopUpdate(LaptopCreate):
@@ -68,42 +84,62 @@ class LaptopUpdate(LaptopCreate):
 
 
 class LaptopUpdatePartial(LaptopUpdate):
-    name: Optional[str] = None
-    price: Optional[float] = None
-    diagonal: Optional[str] = None
-    resolution: Optional[str] = None
-    screen_type: Optional[str] = None
-    cpu_model: Optional[str] = None
-    image: Optional[str] = None
-    is_available: Optional[bool] = None
+    name: str | None = None
+    price: float | None = None
+    diagonal: float | None = None
+    resolution: str | None = None
+    screen_type: str | None = None
+    cpu_model: str | None = None
+    image: str | None = None
+    is_available: bool | None = None
 
-    maker: Optional[str] = None
-    screen_frequency: Optional[str] = None
+    maker: str | None = None
+    screen_frequency: int | None = None
     # CPU
-    cpu_class: Optional[str] = None
-    cpu_frequency: Optional[str] = None
-    cpu_cores: Optional[int] = None
-    cpu_threads: Optional[int] = None
+    cpu_maker: str | None = None
+    cpu_class: str | None = None
+    cpu_frequency: float | None = None
+    cpu_max_frequency: float | None = None
+    cpu_cores: int | None = None
+    cpu_threads: int | None = None
     # GPU
-    gpu_model: Optional[str] = None
-    gpu_memory: Optional[str] = None
-    gpu_memory_type: Optional[str] = None
+    gpu_maker: str | None = None
+    gpu_model: str | None = None
+    gpu_memory: int | None = None
+    gpu_memory_type: str | None = None
     # RAM
-    ram_size: Optional[str] = None
-    ram_type: Optional[str] = None
-    ram_frequency: Optional[str] = None
+    ram_size: int | None = None
+    ram_type: str | None = None
+    ram_frequency: int | None = None
     # Storage
-    storage_size: Optional[str] = None
-    storage_type: Optional[str] = None
+    storage_size: int | None = None
+    storage_type: str | None = None
     # Hardware
-    hardware_type: Optional[str] = None
+    extra_hardware: str | None = None
+    usb_a_2_0: int | None = None
+    usb_a_3_1: int | None = None
+    usb_type_c: int | None = None
+    vga_connection: int | None = None
+    hdmi_connection: int | None = None
+    dp_connection: int | None = None
+    # Connectivity
+    ethernet: int | None = None
+    bluetooth: str | None = None
+    wireless: str | None = None
 
-    warranty: Optional[str] = None
-    installed_os: Optional[str] = None
-    weight: Optional[float] = None
-    color: Optional[str] = None
-    description: Optional[str] = None
-    extra_image: Optional[str] = None
+    is_for_gaming: bool | None = None
+    is_for_home_studying: bool | None = None
+    is_for_office: bool | None = None
+
+    warranty: int | None = None
+    installed_os: str | None = None
+    weight: float | None = None
+    width: float | None = None
+    height: float | None = None
+    depth: float | None = None
+    color: str | None = None
+    description: str | None = None
+    images_url: list[Image] | None = None
 
 
 class LaptopFullModel(LaptopCreate):
