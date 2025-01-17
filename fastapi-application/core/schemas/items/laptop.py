@@ -32,7 +32,6 @@ class LaptopCreate(LaptopBase):
     screen_frequency: int | None
     # CPU
     cpu_maker: str
-    cpu_model: str | None
     cpu_class: str | None
     cpu_frequency: float | None
     cpu_max_frequency: float | None
@@ -63,7 +62,6 @@ class LaptopCreate(LaptopBase):
     bluetooth: str | None
     wireless: str | None
 
-    is_available: bool
     is_for_gaming: bool
     is_for_home_studying: bool
     is_for_office: bool

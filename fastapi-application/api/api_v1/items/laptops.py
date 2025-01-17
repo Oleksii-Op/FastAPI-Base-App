@@ -2,6 +2,10 @@ from typing import Annotated, Sequence
 import logging
 from uuid import UUID
 
+from api.api_v1.items.filters.laptop_filter import (
+    LaptopFilterParams,
+    filter_laptops,
+)
 from common_logger.logger_config import configure_logger
 from api.api_v1.check_perms_loggin import check_if_item_belongs
 from fastapi import (
@@ -63,6 +67,28 @@ async def create_laptop(
         data=model_in.model_dump(),
     )
     return new_laptop
+
+
+@router.get(
+    "/get-laptops-filtered/",
+    response_model=list[LaptopPreviewModelWithID],
+)
+async def get_laptops_filtered(
+    session: Annotated[
+        AsyncSession,
+        Depends(db_helper.session_getter),
+    ],
+    filters: LaptopFilterParams = Depends(),
+    offset: int = Query(0, ge=0),
+    limit: int = Query(50, ge=1, le=100),
+) -> Sequence[Laptop]:
+    result: Sequence[Laptop] = await filter_laptops(
+        session=session,
+        filters=filters,
+        offset=offset,
+        limit=limit,
+    )
+    return result
 
 
 @router.get(
