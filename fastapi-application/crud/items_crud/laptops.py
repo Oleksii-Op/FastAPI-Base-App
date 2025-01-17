@@ -1,4 +1,4 @@
-from core.models.laptop import Laptop
+from core.models.items import Laptop
 from crud.items_crud.crud_helper import CRUDBase
 
 

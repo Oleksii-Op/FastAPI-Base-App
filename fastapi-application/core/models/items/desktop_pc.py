@@ -34,7 +34,7 @@ class DesktopPC(Base):
     has_screen: Mapped[bool]
     is_mini: Mapped[bool]
     ram_type: Mapped[Optional[str]]
-    ram_frequency: Mapped[Optional[str]]
+    ram_frequency: Mapped[Optional[int]]
     cpu_maker: Mapped[str]
     cpu_class: Mapped[Optional[str]]
     cpu_frequency: Mapped[Optional[float]]

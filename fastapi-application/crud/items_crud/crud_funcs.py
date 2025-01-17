@@ -48,7 +48,7 @@ async def get_item_by_uuid(
     session: AsyncSession,
     model: "SQLModel",
     item_uuid: UUID,
-) -> "SQLModel":
+) -> SQLModel | None:
     return await session.get(model, item_uuid)
 
 

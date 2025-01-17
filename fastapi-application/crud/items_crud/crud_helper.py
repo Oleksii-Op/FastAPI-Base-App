@@ -13,6 +13,13 @@ from crud.items_crud.crud_funcs import (
 
 
 class CRUDBase(Generic[SQLModel]):
+    """
+    Generic CRUD base class for SQLAlchemy models.
+
+    Args:
+        model (type[SQLModel]): A SQLAlchemy model class to operate on.
+    """
+
     def __init__(self, model: type[SQLModel]):
         self.model: type[SQLModel] = model
 

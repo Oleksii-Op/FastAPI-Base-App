@@ -100,7 +100,7 @@ class DesktopPCUpdatePartial(DesktopPCCreate):
 
 
 class DesktopPCFullModel(DesktopPCCreate):
-    pass
+    id: UUID
 
 
 class DesktopPCDetail(DesktopPCCreate):

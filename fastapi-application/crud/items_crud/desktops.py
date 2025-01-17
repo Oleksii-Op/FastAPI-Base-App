@@ -1,4 +1,4 @@
-from core.models import DesktopPC
+from core.models.items import DesktopPC
 from crud.items_crud.crud_helper import CRUDBase
 
 

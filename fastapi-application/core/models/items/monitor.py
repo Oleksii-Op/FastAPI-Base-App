@@ -5,7 +5,7 @@ from sqlalchemy import Enum, Text, ForeignKey
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from sqlalchemy.dialects.postgresql import JSON
 from core.models import Base
-from core.schemas.monitors import EnergyClass
+from core.schemas.items.monitors import EnergyClass
 
 if TYPE_CHECKING:
     from core.models import User
