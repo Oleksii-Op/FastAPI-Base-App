@@ -5,6 +5,7 @@ from uuid import UUID
 from api.api_v1.items.filters.laptop_filter import (
     LaptopFilterParams,
     filter_laptops,
+    get_laptops_attrs,
 )
 from common_logger.logger_config import configure_logger
 from api.api_v1.check_perms_loggin import check_if_item_belongs
@@ -43,6 +44,24 @@ router = APIRouter(
     prefix=settings.api.v1.laptops,
     tags=["Laptops"],
 )
+
+from sqlalchemy import select
+from pydantic import BaseModel
+
+
+@router.get(
+    "/get-unique-gpu-models",
+    # response_model=GpuModel,
+)
+async def get_unique_laptop_attr(
+    session: Annotated[
+        AsyncSession,
+        Depends(db_helper.session_getter),
+    ]
+):
+    return await get_laptops_attrs(
+        session=session,
+    )
 
 
 @router.post(

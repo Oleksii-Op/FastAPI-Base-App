@@ -1,5 +1,5 @@
 from typing import TYPE_CHECKING, Sequence
-from sqlalchemy import select, and_, or_
+from sqlalchemy import select, and_, or_, func
 from pydantic import BaseModel, Field
 from fastapi import Query
 
@@ -112,3 +112,107 @@ async def filter_laptops(
     stmt = select(Laptop).filter(and_(*conditions)).offset(offset).limit(limit)
     result = await session.scalars(stmt)
     return result.all()
+
+
+async def get_distinct_values(
+    session: "AsyncSession",
+    field,
+):
+    stmt = select(field).distinct()
+    result = await session.scalars(stmt)
+    return result.all()
+
+
+async def get_range_values(
+    session: "AsyncSession",
+    field,
+):
+    stmt = select(
+        func.min(field).label("min_value"),
+        func.max(field).label("max_value"),
+    )
+    result = await session.execute(stmt)
+    min_value, max_value = result.one()
+    return {"min": min_value, "max": max_value}
+
+
+async def get_laptops_attrs(session: "AsyncSession"):
+
+    response_dict = {
+        "gpu_models": await get_distinct_values(
+            session,
+            Laptop.gpu_model,
+        ),
+        "price_range": await get_range_values(
+            session,
+            Laptop.price,
+        ),
+        "diagonal_range": await get_range_values(
+            session,
+            Laptop.diagonal,
+        ),
+        "screen_frequency_range": await get_range_values(
+            session, Laptop.screen_frequency
+        ),
+        "makers": await get_distinct_values(
+            session,
+            Laptop.maker,
+        ),
+        "resolutions": await get_distinct_values(
+            session,
+            Laptop.resolution,
+        ),
+        "cpu_makers": await get_distinct_values(
+            session,
+            Laptop.cpu_maker,
+        ),
+        "cpu_models": await get_distinct_values(
+            session,
+            Laptop.cpu_model,
+        ),
+        "cpu_cores": await get_distinct_values(
+            session,
+            Laptop.cpu_cores,
+        ),
+        "gpu_makers": await get_distinct_values(
+            session,
+            Laptop.gpu_maker,
+        ),
+        "gpu_memories": await get_distinct_values(
+            session,
+            Laptop.gpu_memory,
+        ),
+        "ram_sizes": await get_distinct_values(
+            session,
+            Laptop.ram_size,
+        ),
+        "ram_types": await get_distinct_values(
+            session,
+            Laptop.ram_type,
+        ),
+        "storage_sizes": await get_distinct_values(
+            session,
+            Laptop.storage_size,
+        ),
+        "storage_types": await get_distinct_values(
+            session,
+            Laptop.storage_type,
+        ),
+        "hdmi_connections": await get_distinct_values(
+            session,
+            Laptop.hdmi_connection,
+        ),
+        "dp_connections": await get_distinct_values(
+            session,
+            Laptop.dp_connection,
+        ),
+        "installed_os": await get_distinct_values(
+            session,
+            Laptop.installed_os,
+        ),
+        "screen_types": await get_distinct_values(
+            session,
+            Laptop.screen_type,
+        ),
+    }
+    return response_dict
