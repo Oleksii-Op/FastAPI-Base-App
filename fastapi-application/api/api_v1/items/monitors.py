@@ -14,6 +14,7 @@ from api.api_v1.check_perms_loggin import check_if_item_belongs
 from api.api_v1.items.filters.monitor_filter import (
     MonitorFilterParams,
     get_monitors_filter,
+    get_monitor_attrs,
 )
 from api.dependencies.authentication.fastapi_users_ import (
     current_verified_user,
@@ -35,6 +36,20 @@ router = APIRouter(
     prefix=settings.api.v1.monitors,
     tags=["Monitors"],
 )
+
+
+@router.get(
+    "/get-unique-attrs",
+)
+async def get_unique_monitor_attr(
+    session: Annotated[
+        AsyncSession,
+        Depends(db_helper.session_getter),
+    ]
+):
+    return await get_monitor_attrs(
+        session=session,
+    )
 
 
 @router.post(

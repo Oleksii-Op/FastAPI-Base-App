@@ -3,6 +3,10 @@ from pydantic import BaseModel, Field
 from sqlalchemy import select, or_, and_
 from fastapi import Query
 from core.models.items import DesktopPC
+from .range_distinct_funcs import (
+    get_distinct_values,
+    get_range_values,
+)
 
 if TYPE_CHECKING:
     from sqlalchemy.ext.asyncio import AsyncSession
@@ -24,6 +28,7 @@ class DesktopFilterParams(BaseModel):
     # GPU
     gpu_maker: list[str] = Field(Query(default=[]))
     gpu_model: list[str] = Field(Query(default=[]))
+    gpu_memory: list[int] = Field(Query(default=[]))
     # CPU
     cpu_maker: list[str] = Field(Query(default=[]))
     cpu_class: list[str] = Field(Query(default=[]))
@@ -76,19 +81,6 @@ async def get_desktops_filter(
                 getattr(DesktopPC, field) == value,
             )
 
-    # exact_fields = {
-    #     "hdmi_connection": filters.hdmi_connection,
-    #     "dp_connection": filters.dp_connection,
-    #     "vga_connection": filters.vga_connection,
-    #     "usb_2": filters.usb_2,
-    #     "usb_type_c": filters.usb_type_c,
-    #     "usb_type_c_thunderbolt": filters.usb_type_c_thunderbolt,
-    # }
-
-    # for field, value in exact_fields.items():
-    #     if value is not None:
-    #         conditions.append(getattr(Monitor, field) == value)
-
     list_fields = {
         "maker": filters.maker,
         "ram_type": filters.ram_type,
@@ -114,3 +106,64 @@ async def get_desktops_filter(
     stmt = select(DesktopPC).filter(and_(*conditions)).offset(offset).limit(limit)
     result = await session.scalars(stmt)
     return result.all()
+
+
+async def get_desktop_attrs(
+    session: "AsyncSession",
+):
+
+    response_dict = {
+        "gpu_models": await get_distinct_values(
+            session,
+            DesktopPC.gpu_model,
+        ),
+        "price_range": await get_range_values(
+            session,
+            DesktopPC.price,
+        ),
+        "makers": await get_distinct_values(
+            session,
+            DesktopPC.maker,
+        ),
+        "cpu_makers": await get_distinct_values(
+            session,
+            DesktopPC.cpu_maker,
+        ),
+        "cpu_models": await get_distinct_values(
+            session,
+            DesktopPC.cpu_model,
+        ),
+        "cpu_cores": await get_distinct_values(
+            session,
+            DesktopPC.cpu_cores,
+        ),
+        "gpu_makers": await get_distinct_values(
+            session,
+            DesktopPC.gpu_maker,
+        ),
+        "gpu_memories": await get_distinct_values(
+            session,
+            DesktopPC.gpu_memory,
+        ),
+        "ram_sizes": await get_distinct_values(
+            session,
+            DesktopPC.ram_size,
+        ),
+        "ram_types": await get_distinct_values(
+            session,
+            DesktopPC.ram_type,
+        ),
+        "ram_frequency": await get_distinct_values(
+            session,
+            DesktopPC.ram_frequency,
+        ),
+        "storage_sizes": await get_distinct_values(
+            session,
+            DesktopPC.storage_size,
+        ),
+        "storage_types": await get_distinct_values(
+            session,
+            DesktopPC.storage_type,
+        ),
+    }
+    return response_dict

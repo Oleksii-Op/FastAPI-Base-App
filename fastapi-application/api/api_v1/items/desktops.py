@@ -1,8 +1,5 @@
 from uuid import UUID
 from typing import Annotated, Sequence
-
-from pydantic import BaseModel, Field
-from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 from api.api_v1.check_perms_loggin import check_if_item_belongs
 from fastapi import (
@@ -28,6 +25,8 @@ from core.models import db_helper, User
 from core.models.items import DesktopPC
 from api.api_v1.items.filters.desktop_filter import (
     get_desktops_filter,
+    DesktopFilterParams,
+    get_desktop_attrs,
 )
 
 user_state = current_verified_user
@@ -36,6 +35,20 @@ router = APIRouter(
     prefix=settings.api.v1.desktops,
     tags=["Desktops"],
 )
+
+
+@router.get(
+    "/get-unique-attrs",
+)
+async def get_unique_desktop_attr(
+    session: Annotated[
+        AsyncSession,
+        Depends(db_helper.session_getter),
+    ]
+):
+    return await get_desktop_attrs(
+        session=session,
+    )
 
 
 @router.post(
@@ -83,31 +96,6 @@ async def get_desktop_by_uuid(
         status_code=404,
         detail=f"Desktop {uuid} not found",
     )
-
-
-class DesktopFilterParams(BaseModel):
-    price_min: float | None = None
-    price_max: float | None = None
-    maker: list[str] = Field(Query(default=[]))
-    is_for_gaming: bool | None = None
-    is_for_home_studying: bool | None = None
-    is_for_office: bool | None = None
-    has_screen: bool | None = None
-    is_mini: bool | None = None
-    # RAM
-    ram_type: list[str] = Field(Query(default=[]))
-    ram_frequency: list[int] = Field(Query(default=[]))
-    ram_size: list[int] = Field(Query(default=[]))
-    # GPU
-    gpu_maker: list[str] = Field(Query(default=[]))
-    gpu_model: list[str] = Field(Query(default=[]))
-    # CPU
-    cpu_maker: list[str] = Field(Query(default=[]))
-    cpu_class: list[str] = Field(Query(default=[]))
-    cpu_cores: list[int] = Field(Query(default=[]))
-    # Storage
-    storage_size: list[int] = Field(Query(default=[]))
-    storage_type: list[str] = Field(Query(default=[]))
 
 
 @router.get(
@@ -274,21 +262,3 @@ async def delete_desktop(
         session=session,
         model_instance=desktop,
     )
-
-
-@router.get("/pc-price-range")
-async def get_pc_price_range(
-    session: AsyncSession = Depends(db_helper.session_getter),
-) -> dict[str, float]:
-    stmt = select(
-        func.min(DesktopPC.price).label("min_price"),
-        func.max(DesktopPC.price).label("max_price"),
-    )
-
-    result = await session.execute(stmt)
-    min_price, max_price = result.one()
-
-    return {
-        "min_price": min_price,
-        "max_price": max_price,
-    }

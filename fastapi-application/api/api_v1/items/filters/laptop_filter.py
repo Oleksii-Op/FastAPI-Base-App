@@ -1,9 +1,13 @@
 from typing import TYPE_CHECKING, Sequence
-from sqlalchemy import select, and_, or_, func
+from sqlalchemy import select, and_, or_
 from pydantic import BaseModel, Field
 from fastapi import Query
 
 from core.models import Laptop
+from .range_distinct_funcs import (
+    get_distinct_values,
+    get_range_values,
+)
 
 if TYPE_CHECKING:
     from sqlalchemy.ext.asyncio import AsyncSession
@@ -114,30 +118,9 @@ async def filter_laptops(
     return result.all()
 
 
-async def get_distinct_values(
+async def get_laptops_attrs(
     session: "AsyncSession",
-    field,
 ):
-    stmt = select(field).distinct()
-    result = await session.scalars(stmt)
-    return result.all()
-
-
-async def get_range_values(
-    session: "AsyncSession",
-    field,
-):
-    stmt = select(
-        func.min(field).label("min_value"),
-        func.max(field).label("max_value"),
-    )
-    result = await session.execute(stmt)
-    min_value, max_value = result.one()
-    return {"min": min_value, "max": max_value}
-
-
-async def get_laptops_attrs(session: "AsyncSession"):
-
     response_dict = {
         "gpu_models": await get_distinct_values(
             session,

@@ -45,13 +45,9 @@ router = APIRouter(
     tags=["Laptops"],
 )
 
-from sqlalchemy import select
-from pydantic import BaseModel
-
 
 @router.get(
-    "/get-unique-gpu-models",
-    # response_model=GpuModel,
+    "/get-unique-attrs",
 )
 async def get_unique_laptop_attr(
     session: Annotated[

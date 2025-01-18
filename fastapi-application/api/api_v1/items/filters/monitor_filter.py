@@ -4,6 +4,10 @@ from pydantic import BaseModel, Field
 from core.models.items import Monitor
 from sqlalchemy import select, or_, and_
 from fastapi import Query
+from .range_distinct_funcs import (
+    get_distinct_values,
+    get_range_values,
+)
 
 if TYPE_CHECKING:
     from sqlalchemy.ext.asyncio import AsyncSession
@@ -100,3 +104,80 @@ async def get_monitors_filter(
     stmt = select(Monitor).filter(and_(*conditions)).offset(offset).limit(limit)
     result = await session.scalars(stmt)
     return result.all()
+
+
+async def get_monitor_attrs(
+    session: "AsyncSession",
+):
+
+    response_dict = {
+        "price_range": await get_range_values(
+            session,
+            Monitor.price,
+        ),
+        "diagonal_range": await get_range_values(
+            session,
+            Monitor.diagonal,
+        ),
+        "brightness": await get_range_values(
+            session,
+            Monitor.brightness,
+        ),
+        "response_time": await get_range_values(
+            session,
+            Monitor.response_time,
+        ),
+        "refresh_rate": await get_range_values(
+            session,
+            Monitor.refresh_rate,
+        ),
+        "makers": await get_distinct_values(
+            session,
+            Monitor.maker,
+        ),
+        "resolution": await get_distinct_values(
+            session,
+            Monitor.resolution,
+        ),
+        "panel_type": await get_distinct_values(
+            session,
+            Monitor.panel_type,
+        ),
+        "contrast_ratio": await get_distinct_values(
+            session,
+            Monitor.contrast_ratio,
+        ),
+        "aspect_ratio": await get_distinct_values(
+            session,
+            Monitor.aspect_ratio,
+        ),
+        "vesa": await get_distinct_values(
+            session,
+            Monitor.vesa_mounting,
+        ),
+        "hdmi_connection": await get_distinct_values(
+            session,
+            Monitor.hdmi_connection,
+        ),
+        "dp_connection": await get_distinct_values(
+            session,
+            Monitor.dp_connection,
+        ),
+        "vga_connection": await get_distinct_values(
+            session,
+            Monitor.vga_connection,
+        ),
+        "usb_2": await get_distinct_values(
+            session,
+            Monitor.usb_2,
+        ),
+        "usb_type_c": await get_distinct_values(
+            session,
+            Monitor.usb_type_c,
+        ),
+        "usb_type_c_thunderbolt": await get_distinct_values(
+            session,
+            Monitor.usb_type_c_thunderbolt,
+        ),
+    }
+    return response_dict
