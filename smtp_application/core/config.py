@@ -1,5 +1,5 @@
 from pydantic_settings import BaseSettings, SettingsConfigDict
-from pydantic import BaseModel, EmailStr, IPvAnyAddress, ConfigDict
+from pydantic import BaseModel, EmailStr, IPvAnyAddress
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -24,6 +24,11 @@ class AllowedAddresses(BaseModel):
     ip_address: IPvAnyAddress
 
 
+class SiteDomain(BaseModel):
+    domain_url: str
+    forgot_password_page_url: str
+
+
 class Settings(BaseSettings):
     model_config = SettingsConfigDict(
         env_file=(".env.template", ".env"),
@@ -36,6 +41,7 @@ class Settings(BaseSettings):
     smtp: SMTPConfig = SMTPConfig()
     credentials: Credentials
     backend_allowed: AllowedAddresses
+    domain: SiteDomain
 
 
-settings = Settings()
+settings = Settings()  # type: ignore

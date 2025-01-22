@@ -4,40 +4,20 @@ import uvicorn
 from fastapi import FastAPI, Request
 from starlette.middleware.base import BaseHTTPMiddleware
 from starlette.responses import JSONResponse
+from controllers.send_controllers import router as send_router
 
 from core.config import settings
-from messages.verify_token_sender import send_verification_email
-from service.transport import email_sender
-from core.schemas.emailverification import EmailVerify
 
 from common_logger.logger_config import configure_logger
 
-
 logger = logging.getLogger(__name__)
 app = FastAPI()
-
-
-@app.post("/send/verifytoken")
-async def send_verification_token(
-    email_data: EmailVerify,
-) -> dict[str, str]:
-    send_verification_email(
-        username=email_data.username,
-        token=email_data.token,
-        recipient_email=email_data.email,
-        transport=email_sender,
-    )
-    logger.warning(
-        "Verification token has been sent to email: email(%r),username: (%r).",
-        email_data.email,
-        email_data.username,
-    )
-    return {"message": "Verification email sent successfully"}
+app.include_router(send_router)
 
 
 async def check_ip_middleware(
-    request: Request,
-    call_next,
+        request: Request,
+        call_next,
 ) -> JSONResponse:
     try:
         client_ip = request.client.host
@@ -66,7 +46,6 @@ app.add_middleware(
     BaseHTTPMiddleware,
     dispatch=check_ip_middleware,
 )
-
 
 if __name__ == "__main__":
     configure_logger(level=logging.INFO)

@@ -16,7 +16,7 @@ class EmailSender:
         smtp_port: int,
         email: str,
         password: str,
-    ):
+    ) -> None:
         self.smtp_host = smtp_host
         self.smtp_port = smtp_port
         self.email = email
@@ -58,7 +58,7 @@ class EmailSender:
 
         return msg
 
-    def send(self, msg: MIMEMultipart):
+    def send(self, msg: MIMEMultipart) -> None:
         try:
             with smtplib.SMTP(self.smtp_host, self.smtp_port) as server:
                 server.ehlo()
