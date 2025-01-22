@@ -65,6 +65,10 @@ class SMTPUrl(BaseModel):
 class RedisConfig(BaseModel):
     url: RedisDsn
 
+    @property
+    def redis_expire(self) -> int:
+        return 3600
+
 
 class DatabaseConfig(BaseModel):
     url: PostgresDsn

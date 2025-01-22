@@ -30,6 +30,8 @@ from core.schemas.items import (
 )
 from crud.items_crud.monitors import crud_monitor as crud_monitor_class
 from core.models import db_helper
+from core.redis_helper import redis
+import orjson
 
 user_state = current_verified_user
 router = APIRouter(
@@ -47,9 +49,18 @@ async def get_unique_monitor_attr(
         Depends(db_helper.session_getter),
     ]
 ):
-    return await get_monitor_attrs(
+    cached_data = await redis.get("monitors_attrs")
+    if cached_data:
+        return orjson.loads(cached_data)
+    result = await get_monitor_attrs(
         session=session,
     )
+    await redis.set(
+        "monitors_attrs",
+        orjson.dumps(result),
+        ex=settings.redis.redis_expire,
+    )
+    return result
 
 
 @router.post(

@@ -15,6 +15,7 @@ from api.dependencies.authentication.fastapi_users_ import (
     current_superuser,
 )
 from core.config import settings  # type: ignore
+from core.redis_helper import redis
 from core.schemas.items import (
     DesktopPCCreate,
     DesktopPCFullModel,
@@ -29,6 +30,7 @@ from api.api_v1.items.filters.desktop_filter import (
     DesktopFilterParams,
     get_desktop_attrs,
 )
+import orjson
 
 user_state = current_verified_user
 
@@ -47,9 +49,18 @@ async def get_unique_desktop_attr(
         Depends(db_helper.session_getter),
     ]
 ):
-    return await get_desktop_attrs(
+    cached_data = await redis.get("desktop_attrs")
+    if cached_data:
+        return orjson.loads(cached_data)
+    result = await get_desktop_attrs(
         session=session,
     )
+    await redis.set(
+        "desktop_attrs",
+        orjson.dumps(result),
+        ex=settings.redis.redis_expire,
+    )
+    return result
 
 
 @router.post(

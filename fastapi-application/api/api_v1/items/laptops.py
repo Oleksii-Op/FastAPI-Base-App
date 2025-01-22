@@ -25,6 +25,7 @@ from api.dependencies.authentication.fastapi_users_ import (
 from core.config import settings
 from core.models import User, db_helper
 from core.models.items import Laptop
+from core.redis_helper import redis
 from core.schemas.items import (
     LaptopFullModel,
     LaptopCreate,
@@ -33,6 +34,7 @@ from core.schemas.items import (
 )
 from sqlalchemy.ext.asyncio import AsyncSession
 from crud.items_crud.laptops import crud_laptop
+import orjson
 
 logger = logging.getLogger(__name__)
 
@@ -55,9 +57,18 @@ async def get_unique_laptop_attr(
         Depends(db_helper.session_getter),
     ]
 ):
-    return await get_laptops_attrs(
+    cached_data = await redis.get("laptops_attrs")
+    if cached_data:
+        return orjson.loads(cached_data)
+    result = await get_laptops_attrs(
         session=session,
     )
+    await redis.set(
+        "laptops_attrs",
+        orjson.dumps(result),
+        ex=settings.redis.redis_expire,
+    )
+    return result
 
 
 @router.post(
