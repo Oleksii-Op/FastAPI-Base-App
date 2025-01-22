@@ -59,7 +59,12 @@ class ApiPrefix(BaseModel):
 class SMTPUrl(BaseModel):
     host: str
     port: int
-    endpoint: str
+    prefix: str = "/controllers"
+    after_registration: str = "/after-registration"
+    verification_request: str = "/verification-request"
+    verification_approved: str = "/verification-approved"
+    forgot_password: str = "/forgot-password"
+    after_reset_password: str = "/after-reset-password"
 
 
 class RedisConfig(BaseModel):
@@ -91,6 +96,10 @@ class FirstSuperUser(BaseModel):
     password: str
 
 
+class ReloadApp(BaseModel):
+    reload: bool = False
+
+
 class AccessToken(BaseModel):
     lifetime_seconds: int = 3600
     reset_password_token_secret: str
@@ -106,6 +115,7 @@ class Settings(BaseSettings):
         env_file_encoding="utf-8",
     )
     run: RunConfig = RunConfig()
+    reload: ReloadApp = ReloadApp()
     api: ApiPrefix = ApiPrefix()
     db: DatabaseConfig
     access_token: AccessToken
