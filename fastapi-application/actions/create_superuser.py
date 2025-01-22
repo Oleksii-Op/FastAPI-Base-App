@@ -1,6 +1,6 @@
 import asyncio
 import contextlib
-
+import logging
 from fastapi_users.exceptions import UserAlreadyExists
 from pydantic import EmailStr
 
@@ -10,6 +10,8 @@ from core.authentication.user_manager import UserManager
 from core.models import db_helper, User
 from core.schemas.user import UserCreate
 from core.config import settings
+
+logger = logging.getLogger(__name__)
 
 
 get_users_db_context = contextlib.asynccontextmanager(get_users_db)
@@ -57,5 +59,6 @@ async def create_superuser(
 if __name__ == "__main__":
     try:
         asyncio.run(create_superuser())
+        logger.warning("A superuser was created")
     except UserAlreadyExists:
-        print("Superuser already exists. Skipping...")
+        logger.warning("Superuser already exists. Skipping...")

@@ -12,6 +12,7 @@ from fastapi import (
 )
 from api.dependencies.authentication.fastapi_users_ import (
     current_verified_user,
+    current_superuser,
 )
 from core.config import settings  # type: ignore
 from core.schemas.items import (
@@ -125,6 +126,10 @@ async def get_desktops_filtered(
     response_model=list[DesktopPCFullModel],
 )
 async def get_desktops_detail(
+    user: Annotated[
+        User,
+        Depends(current_superuser),
+    ],
     session: Annotated[
         AsyncSession,
         Depends(db_helper.session_getter),
@@ -132,6 +137,15 @@ async def get_desktops_detail(
     offset: int = Query(0, ge=0),
     limit: int = Query(50, ge=1, le=100),
 ) -> Sequence["DesktopPC"]:
+    """
+    Dumps all full desktop models from DB
+    available only for superuser
+    :param user:
+    :param session:
+    :param offset:
+    :param limit:
+    :return:
+    """
     desktops: Sequence[DesktopPC] = await crud_desktop.get_all(
         session=session,
         offset=offset,
@@ -145,11 +159,22 @@ async def get_desktops_detail(
     response_model=list[DesktopPCPreviewModelWithID],
 )
 async def get_all_desktops_preview(
+    user: Annotated[
+        User,
+        Depends(current_superuser),
+    ],
     session: Annotated[
         AsyncSession,
         Depends(db_helper.session_getter),
     ],
 ) -> Sequence[DesktopPC]:
+    """
+    Dumps all preview desktop models from DB
+    available only for superuser
+    :param user:
+    :param session:
+    :return:
+    """
     desktops: Sequence[DesktopPC] = await crud_desktop.get_all(
         session=session,
     )

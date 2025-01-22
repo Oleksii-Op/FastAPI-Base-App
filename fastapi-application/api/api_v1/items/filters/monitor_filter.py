@@ -30,12 +30,12 @@ class MonitorFilterParams(BaseModel):
     response_time_max: int | None = None
     refresh_rate_min: int | None = None
     refresh_rate_max: int | None = None
-    hdmi_connection: int | None = None
-    dp_connection: int | None = None
-    vga_connection: int | None = None
-    usb_2: int | None = None
-    usb_type_c: int | None = None
-    usb_type_c_thunderbolt: int | None = None
+    hdmi_connection: list[int] = Field(Query(default=[]))
+    dp_connection: list[int] = Field(Query(default=[]))
+    vga_connection: list[int] = Field(Query(default=[]))
+    usb_2: list[int] = Field(Query(default=[]))
+    usb_type_c: list[int] = Field(Query(default=[]))
+    usb_type_c_thunderbolt: list[int] = Field(Query(default=[]))
     has_touchscreen: bool | None = None
     pivot: bool | None = None
     is_adjustable_height: bool | None = None
@@ -75,18 +75,18 @@ async def get_monitors_filter(
         if value is not None:
             conditions.append(getattr(Monitor, field) == value)
 
-    exact_fields = {
-        "hdmi_connection": filters.hdmi_connection,
-        "dp_connection": filters.dp_connection,
-        "vga_connection": filters.vga_connection,
-        "usb_2": filters.usb_2,
-        "usb_type_c": filters.usb_type_c,
-        "usb_type_c_thunderbolt": filters.usb_type_c_thunderbolt,
-    }
-
-    for field, value in exact_fields.items():
-        if value is not None:
-            conditions.append(getattr(Monitor, field) == value)
+    # exact_fields = {
+    #     "hdmi_connection": filters.hdmi_connection,
+    #     "dp_connection": filters.dp_connection,
+    #     "vga_connection": filters.vga_connection,
+    #     "usb_2": filters.usb_2,
+    #     "usb_type_c": filters.usb_type_c,
+    #     "usb_type_c_thunderbolt": filters.usb_type_c_thunderbolt,
+    # }
+    #
+    # for field, value in exact_fields.items():
+    #     if value is not None:
+    #         conditions.append(getattr(Monitor, field) == value)
 
     list_fields = {
         "maker": filters.maker,
@@ -95,11 +95,21 @@ async def get_monitors_filter(
         "aspect_ratio": filters.aspect_ratio,
         "vesa_mounting": filters.vesa_mounting,
         "resolution": filters.resolution,
+        "hdmi_connection": filters.hdmi_connection,
+        "dp_connection": filters.dp_connection,
+        "vga_connection": filters.vga_connection,
+        "usb_2": filters.usb_2,
+        "usb_type_c": filters.usb_type_c,
+        "usb_type_c_thunderbolt": filters.usb_type_c_thunderbolt,
     }
 
     for field, values in list_fields.items():
         if values:
-            conditions.append(or_(*[getattr(Monitor, field) == val for val in values]))
+            column = getattr(Monitor, field)
+            if isinstance(values[0], str):
+                conditions.append(or_(*[column.ilike(f"%{val}%") for val in values]))
+            else:
+                conditions.append(or_(*[column == val for val in values]))
 
     stmt = select(Monitor).filter(and_(*conditions)).offset(offset).limit(limit)
     result = await session.scalars(stmt)

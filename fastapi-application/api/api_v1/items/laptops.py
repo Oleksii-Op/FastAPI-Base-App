@@ -175,6 +175,10 @@ async def get_my_laptops(
     response_model=list[LaptopFullModel],
 )
 async def get_laptops_detail(
+    user: Annotated[
+        User,
+        Depends(current_superuser),
+    ],
     session: Annotated[
         AsyncSession,
         Depends(db_helper.session_getter),
@@ -182,6 +186,15 @@ async def get_laptops_detail(
     offset: int = Query(0, ge=0),
     limit: int = Query(50, ge=1, le=100),
 ) -> Sequence["Laptop"]:
+    """
+    Dumps all full laptops models from DB in JSON array
+    available to superusers only
+    :param user:
+    :param session:
+    :param offset:
+    :param limit:
+    :return:
+    """
     laptops: Sequence["Laptop"] = await crud_laptop.get_all(
         session=session,
         offset=offset,
