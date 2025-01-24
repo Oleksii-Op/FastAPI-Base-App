@@ -95,8 +95,8 @@ services:
       APP_CONFIG__DB__URL: postgresql+asyncpg://main:supersecret@pg:5432/shop
       # APP_CONFIG__DB__ECHO=1 will output SQLAlchemy queries to logs,
       # set APP_CONFIG__DB__ECHO=0 for production to avoid unnecessary logs
-      APP_CONFIG__DB__ECHO: 1
-      APP_CONFIG__RELOAD__RELOAD: 1
+      APP_CONFIG__DB__ECHO: 0
+      APP_CONFIG__RELOAD__RELOAD: 0
       APP_CONFIG__ACCESS_TOKEN__RESET_PASSWORD_TOKEN_SECRET:
       APP_CONFIG__ACCESS_TOKEN__VERIFICATION_TOKEN_SECRET:
       # FastAPI superuser email and password
