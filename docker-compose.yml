@@ -26,10 +26,8 @@ services:
       vector:
         condition: service_started
     networks:
-      pg-admin-network:
-        ipv4_address: 10.10.101.3
-      backend-network:
-        ipv4_address: 10.10.103.3
+      common-network:
+        ipv4_address: 10.10.101.14
 
   redis:
     image: redis:7.4.1-bookworm
@@ -40,8 +38,8 @@ services:
     ports:
       - "6379"
     networks:
-      backend-network:
-        ipv4_address: 10.10.103.15
+      common-network:
+        ipv4_address: 10.10.101.13
 
   #Backend proxy
   nginx:
@@ -49,10 +47,7 @@ services:
     image: nginx:stable
     container_name: nginx
     ports:
-     # Only HTTPS 443 port
-     # IPv4 ONLY. IPv6 is blocked by 0.0.0.0:host:container
-     # - "80:80"
-      - "0.0.0.0:443:443"
+      - "443:443"
     volumes:
       - ./nginx/nginx.conf:/etc/nginx/nginx.conf
       - ./nginx/ssl/:/etc/nginx/ssl/
@@ -61,15 +56,15 @@ services:
       app:
         condition: service_started
     networks:
-      proxy-network:
-        ipv4_address: 10.10.105.2
+      common-network:
+        ipv4_address: 10.10.101.12
 
   frontend:
     build:
       context: ./frontend
       dockerfile: Dockerfile
       tags:
-        - "base-app/frontend:0.1"
+        - "base-app/frontend:0.2"
     restart: unless-stopped
     container_name: frontend
     environment:
@@ -80,8 +75,8 @@ services:
       nginx:
         condition: service_started
     networks:
-      proxy-network:
-        ipv4_address: 10.10.105.3
+      common-network:
+        ipv4_address: 10.10.101.11
 
 # Do not change "app" name as it is used by nginx configs
   app:
@@ -89,34 +84,36 @@ services:
       context: ./fastapi-application
       dockerfile: Dockerfile
       tags:
-        - "fastapi-backend:0.1"
+        - "base-app/fastapi-backend:0.2"
     restart: unless-stopped
     container_name: app
     # Use command below for the first run for running migrations
     # and creating a superuser. REMOVE AFTER THE FIRST RUN!
     command: bash -c "sleep 10 && poetry run alembic upgrade head && poetry run python main.py"
     environment:
-      APP_CONFIG__PROJECT_NAME: "Base-app"
+      APP_CONFIG__PROJECT_NAME: "TechHaven"
       APP_CONFIG__DB__URL: postgresql+asyncpg://main:supersecret@pg:5432/shop
       # APP_CONFIG__DB__ECHO=1 will output SQLAlchemy queries to logs,
       # set APP_CONFIG__DB__ECHO=0 for production to avoid unnecessary logs
-      APP_CONFIG__DB__ECHO: 0
-      APP_CONFIG__ACCESS_TOKEN__RESET_PASSWORD_TOKEN_SECRET: d270a3414c9c5de52047bf51914f51b46eb3518b62a7448d418d29406de81c2d
-      APP_CONFIG__ACCESS_TOKEN__VERIFICATION_TOKEN_SECRET: f1cbb46d52e6ab73802d9021155a77d5828838730a08d407fd2c7ec59740dc3b
+      APP_CONFIG__DB__ECHO: 1
+      APP_CONFIG__RELOAD__RELOAD: 1
+      APP_CONFIG__ACCESS_TOKEN__RESET_PASSWORD_TOKEN_SECRET:
+      APP_CONFIG__ACCESS_TOKEN__VERIFICATION_TOKEN_SECRET:
       # FastAPI superuser email and password
       APP_CONFIG__FIRSTSUPERUSER__EMAIL: "admin@admin.com"
       APP_CONFIG__FIRSTSUPERUSER__PASSWORD: "superuser"
       # CORS
       APP_CONFIG__FRONTEND_HOST: http://localhost:5050
+      BACKEND_CORS_ORIGINS: prometheus
       # SMTP server settings
       # DO NOT CHANGE
-      APP_CONFIG__SMTP_SERVICE__HOST: http://10.10.103.10
+      APP_CONFIG__SMTP_SERVICE__HOST: http://smtp
       APP_CONFIG__SMTP_SERVICE__PORT: 8050
       APP_CONFIG__SMTP_SERVICE__ENDPOINT: /send/verifytoken
       # DO NOT CHANGE
       APP_CONFIG__REDIS__URL: redis://redis:6379
     extra_hosts:
-      - "redis=10.10.103.15"
+      - "redis=10.10.101.13"
     links:
       # Extra aliases for DNS
       - "pg:database"
@@ -128,39 +125,38 @@ services:
     healthcheck:
       test: wget --no-verbose --tries=1 http://127.0.0.1:8000/utils/healthcheck || exit 1
     ports:
-      - "8000:8000"
+      - "8000"
     networks:
-      backend-network:
-        ipv4_address: 10.10.103.2
-      proxy-network:
-        ipv4_address: 10.10.105.4
+      common-network:
+        ipv4_address: 10.10.101.10
 
   smtp:
     build:
       context: ./smtp_application
       dockerfile: ./Dockerfile
       tags:
-        - "smtpserver:0.1"
+        - "base-app/smtpserver:0.2"
     restart: on-failure
     container_name: smtp-server
-#    deploy:
-#      resources:
-#        limits:
-#          cpus: "0.5"
-#          memory: 512M
     environment:
-      GOOGLE__CREDENTIALS__EMAIL: youremail
-      GOOGLE__CREDENTIALS__PASSWORD: yourpass
+      GOOGLE__CREDENTIALS__EMAIL:
+      GOOGLE__CREDENTIALS__PASSWORD:
       # DO NOT CHANGE
-      GOOGLE__BACKEND_ALLOWED__IP_ADDRESS: 10.10.103.2
+      GOOGLE__BACKEND_ALLOWED__IP_ADDRESS: 10.10.101.10
+      GOOGLE__DOMAIN__DOMAIN_URL: https://{ip/domain}/
+      # SMTP provide configs
+      GOOGLE__SMTP__HOST: smtp.gmail.com
+      GOOGLE__SMTP__PORT: 587
+    healthcheck:
+      test: wget --no-verbose --tries=1 http://127.0.0.1:8000/utils/healthcheck || exit 1
     depends_on:
       app:
         condition: service_started
     ports:
       - "8050"
     networks:
-      backend-network:
-        ipv4_address: 10.10.103.10
+      common-network:
+        ipv4_address: 10.10.101.9
 
   prometheus:
     image: prom/prometheus:latest
@@ -174,10 +170,8 @@ services:
     volumes:
       - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
     networks:
-      monitoring-network:
-        ipv4_address: 10.10.102.2
-      backend-network:
-        ipv4_address: 10.10.103.5
+      common-network:
+        ipv4_address: 10.10.101.8
 
   grafana:
     image: grafana/grafana
@@ -185,9 +179,15 @@ services:
     restart: unless-stopped
     user: root
     ports:
-      # IPv6 blocked
       # HTTPS
-      - "0.0.0.0:3000:3000"
+      - "3000:3000"
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=
+      - GF_USERS_ALLOW_SIGN_UP=false
+      - GF_SERVER_PROTOCOL=https
+      - GF_SERVER_CERT_FILE=/etc/grafana/certs/grafana.crt
+      - GF_SERVER_CERT_KEY=/etc/grafana/certs/grafana.key
+      - GF_INSTALL_PLUGINS=grafana-clickhouse-datasource
     depends_on:
       vector:
         condition: service_started
@@ -197,8 +197,8 @@ services:
     env_file:
       - ./grafana/config.monitoring
     networks:
-      monitoring-network:
-        ipv4_address: 10.10.102.6
+      common-network:
+        ipv4_address: 10.10.101.7
 
   clickhouse:
     image: clickhouse/clickhouse-server
@@ -207,7 +207,6 @@ services:
       - clickhouse-data:/var/lib/clickhouse/
       - ./clickhouse/:/docker-entrypoint-initdb.d/
     environment:
-      # Default user and database will be created using `init-defaults.sh` script
       CLICKHOUSE_DB: docker
       CLICKHOUSE_USER: default
       CLICKHOUSE_PASSWORD: password
@@ -219,10 +218,10 @@ services:
       start_period: 5s
     ports:
       - "8123"
-      - "9000:9000"
+      - "9000"
     networks:
-      monitoring-network:
-        ipv4_address: 10.10.102.20
+      common-network:
+        ipv4_address: 10.10.101.6
 
   vector:
     image: timberio/vector:latest-alpine
@@ -231,8 +230,8 @@ services:
       - ./vector/vector.yaml:/etc/vector/vector.yaml:ro
       - /var/run/docker.sock:/var/run/docker.sock
     networks:
-      monitoring-network:
-        ipv4_address: 10.10.102.15
+      common-network:
+        ipv4_address: 10.10.101.5
     depends_on:
       clickhouse:
         condition: service_healthy
@@ -251,8 +250,8 @@ services:
     volumes:
       - '/:/host:ro,rslave'
     networks:
-      monitoring-network:
-        ipv4_address: 10.10.102.3
+      common-network:
+        ipv4_address: 10.10.101.4
 
   cadvisor:
     image: gcr.io/cadvisor/cadvisor:latest
@@ -268,8 +267,8 @@ services:
       - /sys:/sys:ro
       - /var/lib/docker/:/var/lib/docker:ro
     networks:
-      monitoring-network:
-        ipv4_address: 10.10.102.4
+      common-network:
+        ipv4_address: 10.10.101.3
 
   pgadmin:
     image: dpage/pgadmin4
@@ -282,53 +281,22 @@ services:
       PGADMIN_DEFAULT_EMAIL: 'admin@example.com'
       PGADMIN_DEFAULT_PASSWORD: 'test_admin'
     ports:
-      - "0.0.0.0:8020:80"
+      - "8020:80"
     volumes:
       - admin-data:/var/lib/pgadmin
     networks:
-      pg-admin-network:
+      common-network:
         ipv4_address: 10.10.101.2
 
 networks:
-  pg-admin-network:
+  common-network:
     driver: bridge
     ipam:
       driver: default
       config:
-        - subnet: 10.10.101.0/24
-          gateway: 10.10.101.254
+        - subnet: 10.10.101.0/27
+          gateway: 10.10.101.1
 
-  monitoring-network:
-    driver: bridge
-    ipam:
-      driver: default
-      config:
-        - subnet: 10.10.102.0/24
-          gateway: 10.10.102.254
-
-  backend-network:
-    driver: bridge
-    ipam:
-      driver: default
-      config:
-        - subnet: 10.10.103.0/24
-          gateway: 10.10.103.254
-
-  frontend-network:
-    driver: bridge
-    ipam:
-      driver: default
-      config:
-        - subnet: 10.10.104.0/24
-          gateway: 10.10.104.254
-
-  proxy-network:
-    driver: bridge
-    ipam:
-      driver: default
-      config:
-        - subnet: 10.10.105.0/24
-          gateway: 10.10.105.254
 
 volumes:
   db-data:

@@ -1,6 +1,0 @@
-GF_SECURITY_ADMIN_PASSWORD=pass@123
-GF_USERS_ALLOW_SIGN_UP=false
-GF_SERVER_PROTOCOL=https
-GF_SERVER_CERT_FILE=/etc/grafana/certs/grafana.crt
-GF_SERVER_CERT_KEY=/etc/grafana/certs/grafana.key
-GF_INSTALL_PLUGINS=grafana-clickhouse-datasource
