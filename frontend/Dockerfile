@@ -4,6 +4,8 @@ FROM node:${NODE_VERSION}-alpine AS builder
 
 WORKDIR /app
 
+ENV VITE_API_BASE_URL=${VITE_API_BASE_URL}
+
 COPY nginx.conf /app
 
 COPY package*.json ./

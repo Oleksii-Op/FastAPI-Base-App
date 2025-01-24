@@ -5,11 +5,13 @@ import { useToast } from "@/components/ui/use-toast";
 import {
   Dialog,
   DialogContent,
+  DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { LoginForm } from "@/components/LoginForm";
 import { RegisterForm } from "@/components/RegisterForm";
 import { ForgotPasswordForm } from "@/components/ForgotPasswordForm";
+import { ResetPasswordDialog } from "@/components/ResetPasswordDialog";
 import { useState } from "react";
 
 interface AuthButtonsProps {
@@ -30,6 +32,7 @@ export const AuthButtons = ({
   const navigate = useNavigate();
   const { toast } = useToast();
   const [currentView, setCurrentView] = useState<ViewType>('login');
+  const [isResetPasswordOpen, setIsResetPasswordOpen] = useState(false);
 
   const handleLogout = async () => {
     try {
@@ -59,14 +62,19 @@ export const AuthButtons = ({
     }
   };
 
+  const handleResetPasswordSuccess = () => {
+    setIsResetPasswordOpen(false);
+    setCurrentView('login');
+  };
+
   const renderView = () => {
     switch (currentView) {
       case 'register':
         return (
           <>
-            <h2 className="text-2xl font-semibold text-white text-center">
+            <DialogTitle className="text-2xl font-semibold text-white text-center">
               Create an account
-            </h2>
+            </DialogTitle>
             <p className="text-gray-400 text-center mt-1 mb-6">
               Enter your details to sign up
             </p>
@@ -88,21 +96,30 @@ export const AuthButtons = ({
       case 'forgotPassword':
         return (
           <>
-            <h2 className="text-2xl font-semibold text-white text-center">
+            <DialogTitle className="text-2xl font-semibold text-white text-center">
               Reset Password
-            </h2>
+            </DialogTitle>
             <p className="text-gray-400 text-center mt-1 mb-6">
               Enter your email to receive reset instructions
             </p>
             <ForgotPasswordForm onCancel={() => setCurrentView('login')} />
+            <div className="mt-4 text-center">
+              <Button 
+                variant="link" 
+                className="text-gray-400 hover:text-gray-300 text-sm"
+                onClick={() => setIsResetPasswordOpen(true)}
+              >
+                Already have a reset token?
+              </Button>
+            </div>
           </>
         );
       default:
         return (
           <>
-            <h2 className="text-2xl font-semibold text-white text-center">
+            <DialogTitle className="text-2xl font-semibold text-white text-center">
               Welcome back
-            </h2>
+            </DialogTitle>
             <p className="text-gray-400 text-center mt-1 mb-6">
               Enter your credentials to continue
             </p>
@@ -154,21 +171,27 @@ export const AuthButtons = ({
   }
 
   return (
-    <Dialog open={isLoginOpen} onOpenChange={setIsLoginOpen}>
-      <DialogTrigger asChild>
-        <Button 
-          variant="outline" 
-          className="bg-white/10 text-white hover:bg-white/20 border-white/30"
-          onClick={onLoginClick}
-        >
-          Login
-        </Button>
-      </DialogTrigger>
-      <DialogContent className="w-[400px] bg-[#1A1B1E] border-gray-800 p-0">
-        <div className="p-6">
+    <>
+      <Dialog open={isLoginOpen} onOpenChange={setIsLoginOpen}>
+        <DialogTrigger asChild>
+          <Button 
+            variant="outline" 
+            className="bg-white/10 text-white hover:bg-white/20 border-white/30"
+            onClick={onLoginClick}
+          >
+            Login
+          </Button>
+        </DialogTrigger>
+        <DialogContent className="w-[400px] bg-[#1A1B1E] border-gray-800 p-6">
           {renderView()}
-        </div>
-      </DialogContent>
-    </Dialog>
+        </DialogContent>
+      </Dialog>
+
+      <ResetPasswordDialog
+        isOpen={isResetPasswordOpen}
+        onClose={() => setIsResetPasswordOpen(false)}
+        onSuccess={handleResetPasswordSuccess}
+      />
+    </>
   );
 };

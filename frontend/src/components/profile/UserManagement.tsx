@@ -22,7 +22,17 @@ export const UserManagement = () => {
   const [notFoundError, setNotFoundError] = useState<string | null>(null);
   const { toast } = useToast();
 
-  const handleFetchUser = async (userId: number) => {
+  const handleFetchUser = async (searchValue: string) => {
+    const userId = parseInt(searchValue, 10);
+    if (isNaN(userId)) {
+      toast({
+        variant: "destructive",
+        title: "Invalid ID",
+        description: "Please enter a valid numeric ID",
+      });
+      return;
+    }
+
     setIsLoading(true);
     setLastSearchedId(userId);
     setNotFoundError(null);
@@ -60,8 +70,8 @@ export const UserManagement = () => {
   const handleUpdateUser = async (userId: number, formData: UserFormData) => {
     setIsLoading(true);
     try {
-      await userService.updateUser(userId, formData);
-      await handleFetchUser(userId);
+      const updatedUser = await userService.updateUser(userId, formData);
+      setUsers(prev => prev.map(u => u.id === userId ? updatedUser : u));
       setIsEditDialogOpen(false);
       toast({
         title: "Success",

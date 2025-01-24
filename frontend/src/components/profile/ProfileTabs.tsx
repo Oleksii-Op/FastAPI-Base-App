@@ -1,8 +1,8 @@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Settings, User, Bell, Shield, MessageSquare, Laptop, Users } from "lucide-react";
+import { Settings, User, Bell, Shield, MessageSquare, Package2, Users } from "lucide-react";
 import { UserData } from "@/types/user";
-import { MyLaptops } from "./MyLaptops";
+import { MyProducts } from "./MyProducts";
 import { ProfileInfo } from "./ProfileInfo";
 import { MessagesTab } from "./MessagesTab";
 import { ChangePasswordDialog } from "./ChangePasswordDialog";
@@ -13,11 +13,11 @@ interface ProfileTabsProps {
 }
 
 export const ProfileTabs = ({ userData }: ProfileTabsProps) => {
-  const showLaptopsTab = userData.is_superuser || userData.is_verified;
+  const showProductsTab = userData.is_superuser || userData.is_verified;
 
   return (
     <Tabs defaultValue="profile" className="p-8">
-      <TabsList className={`grid w-full ${userData.is_superuser ? 'grid-cols-7' : showLaptopsTab ? 'grid-cols-6' : 'grid-cols-5'} bg-white/5 border border-white/10`}>
+      <TabsList className={`grid w-full ${userData.is_superuser ? 'grid-cols-7' : showProductsTab ? 'grid-cols-6' : 'grid-cols-5'} bg-white/5 border border-white/10`}>
         <TabsTrigger value="profile" className="text-white data-[state=active]:bg-white/10">
           <User className="mr-2 h-4 w-4" />
           Profile
@@ -38,10 +38,10 @@ export const ProfileTabs = ({ userData }: ProfileTabsProps) => {
           <MessageSquare className="mr-2 h-4 w-4" />
           Messages
         </TabsTrigger>
-        {showLaptopsTab && (
-          <TabsTrigger value="my-laptops" className="text-white data-[state=active]:bg-white/10">
-            <Laptop className="mr-2 h-4 w-4" />
-            My Laptops
+        {showProductsTab && (
+          <TabsTrigger value="my-products" className="text-white data-[state=active]:bg-white/10">
+            <Package2 className="mr-2 h-4 w-4" />
+            My Products
           </TabsTrigger>
         )}
         {userData.is_superuser && (
@@ -106,11 +106,11 @@ export const ProfileTabs = ({ userData }: ProfileTabsProps) => {
         <MessagesTab />
       </TabsContent>
 
-      {showLaptopsTab && (
-        <TabsContent value="my-laptops">
+      {showProductsTab && (
+        <TabsContent value="my-products">
           <Card className="bg-white/5 border-white/10">
             <CardContent className="pt-6">
-              <MyLaptops />
+              <MyProducts />
             </CardContent>
           </Card>
         </TabsContent>

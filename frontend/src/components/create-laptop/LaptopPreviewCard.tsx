@@ -71,7 +71,7 @@ export const LaptopPreviewCard = ({ data }: LaptopPreviewCardProps) => {
           <div className="space-y-2">
             <h4 className="text-lg font-medium text-white">Additional Info</h4>
             <div className="space-y-1">
-              <p className="text-sm text-gray-400">Hardware Type: <span className="text-white">{formatValue(data.hardware_type)}</span></p>
+              <p className="text-sm text-gray-400">Extra Hardware: <span className="text-white">{formatValue(data.extra_hardware)}</span></p>
               <p className="text-sm text-gray-400">Warranty: <span className="text-white">{formatValue(data.warranty)}</span></p>
               <p className="text-sm text-gray-400">OS: <span className="text-white">{formatValue(data.installed_os)}</span></p>
               <p className="text-sm text-gray-400">Weight: <span className="text-white">{formatValue(data.weight)}</span></p>

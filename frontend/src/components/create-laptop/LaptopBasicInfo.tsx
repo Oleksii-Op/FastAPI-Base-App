@@ -104,18 +104,6 @@ export const LaptopBasicInfo = ({ className, isEditing = false }: LaptopBasicInf
           />
         </div>
 
-        <div className="space-y-2">
-          <Label htmlFor="extra_image" className="text-white">
-            Extra Image URL <span className="text-sm text-gray-400">(Optional)</span>
-          </Label>
-          <Input
-            id="extra_image"
-            name="extra_image"
-            placeholder="e.g. https://example.com/laptop-extra-image.jpg"
-            className="bg-white/10 text-white border-white/20"
-          />
-        </div>
-
         <div className="col-span-2 space-y-2">
           <Label htmlFor="description" className="text-white">
             Description <span className="text-sm text-gray-400">(Optional)</span>

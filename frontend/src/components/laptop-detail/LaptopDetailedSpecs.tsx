@@ -3,12 +3,12 @@ interface DetailedSpecsProps {
   cpu_frequency?: string;
   cpu_cores?: number;
   cpu_threads?: number;
-  gpu_memory?: string;
+  gpu_memory?: number;
   gpu_memory_type?: string;
   ram_type?: string;
-  ram_frequency?: string;
+  ram_frequency?: number;
   hardware_type?: string;
-  warranty?: string;
+  warranty?: number;
   installed_os?: string;
   weight?: number;
   color?: string;
@@ -53,7 +53,7 @@ export const LaptopDetailedSpecs = (props: DetailedSpecsProps) => {
               {cpu_frequency && (
                 <div className="flex justify-between">
                   <span className="text-gray-400">Frequency:</span>
-                  <span className="text-white">{cpu_frequency}</span>
+                  <span className="text-white">{cpu_frequency} GHz</span>
                 </div>
               )}
               {cpu_cores && (
@@ -79,7 +79,7 @@ export const LaptopDetailedSpecs = (props: DetailedSpecsProps) => {
               {gpu_memory && (
                 <div className="flex justify-between">
                   <span className="text-gray-400">Memory:</span>
-                  <span className="text-white">{gpu_memory}</span>
+                  <span className="text-white">{gpu_memory} GB</span>
                 </div>
               )}
               {gpu_memory_type && (
@@ -125,7 +125,7 @@ export const LaptopDetailedSpecs = (props: DetailedSpecsProps) => {
               {warranty && (
                 <div className="flex justify-between">
                   <span className="text-gray-400">Warranty:</span>
-                  <span className="text-white">{warranty}</span>
+                  <span className="text-white">{warranty} months</span>
                 </div>
               )}
               {installed_os && (

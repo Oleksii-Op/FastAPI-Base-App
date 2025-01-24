@@ -124,4 +124,74 @@
   .animate-marquee-right {
     animation: marquee-right 30s linear infinite;
   }
+
+  /* Range Slider Styles */
+  .double-slider-box {
+    @apply bg-white/10 rounded-lg p-5 w-full max-w-[300px] mx-auto;
+  }
+
+  .range-slider {
+    @apply relative w-full h-[5px] my-8 bg-white/20 rounded-full;
+  }
+
+  .slider-track {
+    @apply h-full absolute bg-blue-500 rounded-full;
+  }
+
+  .range-slider input[type="range"] {
+    @apply absolute w-full top-0 -translate-y-1/2 bg-transparent pointer-events-none appearance-none h-[5px];
+  }
+
+  input[type="range"]::-webkit-slider-thumb {
+    @apply h-5 w-5 rounded-full border-2 border-white bg-blue-500 pointer-events-auto appearance-none cursor-pointer shadow-lg relative z-10;
+  }
+
+  input[type="range"]::-moz-range-thumb {
+    @apply h-5 w-5 rounded-full border-2 border-white bg-blue-500 pointer-events-auto cursor-pointer shadow-lg relative z-10;
+  }
+
+  .input-box {
+    @apply flex justify-between w-full;
+  }
+
+  .min-box,
+  .max-box {
+    @apply w-1/2;
+  }
+
+  .min-box {
+    @apply mr-2;
+  }
+
+  .max-box input {
+    @apply float-right;
+  }
+
+  input[type="number"] {
+    @apply w-20 px-2 py-2 bg-white/10 border border-white/20 rounded text-white text-center;
+  }
+
+  .min-tooltip,
+  .max-tooltip {
+    @apply absolute -top-9 text-xs text-white bg-blue-500 px-2 py-1 rounded whitespace-nowrap z-10;
+  }
+
+  .min-tooltip {
+    @apply left-0 -translate-x-1/2;
+  }
+
+  .max-tooltip {
+    @apply right-0 translate-x-1/2;
+  }
+
+  /* Hide number input spinners */
+  input[type="number"]::-webkit-inner-spin-button,
+  input[type="number"]::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+  }
+
+  input[type="number"] {
+    -moz-appearance: textfield;
+  }
 }

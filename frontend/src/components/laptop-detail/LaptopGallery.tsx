@@ -5,23 +5,24 @@ import { Button } from "@/components/ui/button";
 interface LaptopGalleryProps {
   mainImage: string;
   extraImage?: string;
+  additionalImages?: string[];
   name: string;
 }
 
-export const LaptopGallery = ({ mainImage, extraImage, name }: LaptopGalleryProps) => {
+export const LaptopGallery = ({ mainImage, extraImage, additionalImages = [], name }: LaptopGalleryProps) => {
+  const allImages = [mainImage, extraImage, ...additionalImages].filter(Boolean) as string[];
   const [currentImage, setCurrentImage] = useState(mainImage);
-  const images = [mainImage, extraImage].filter(Boolean);
 
   const handlePrevious = () => {
-    const currentIndex = images.indexOf(currentImage);
-    const newIndex = currentIndex === 0 ? images.length - 1 : currentIndex - 1;
-    setCurrentImage(images[newIndex]);
+    const currentIndex = allImages.indexOf(currentImage);
+    const newIndex = currentIndex === 0 ? allImages.length - 1 : currentIndex - 1;
+    setCurrentImage(allImages[newIndex]);
   };
 
   const handleNext = () => {
-    const currentIndex = images.indexOf(currentImage);
-    const newIndex = currentIndex === images.length - 1 ? 0 : currentIndex + 1;
-    setCurrentImage(images[newIndex]);
+    const currentIndex = allImages.indexOf(currentImage);
+    const newIndex = currentIndex === allImages.length - 1 ? 0 : currentIndex + 1;
+    setCurrentImage(allImages[newIndex]);
   };
 
   return (
@@ -32,7 +33,7 @@ export const LaptopGallery = ({ mainImage, extraImage, name }: LaptopGalleryProp
           alt={name}
           className="w-full h-full object-contain"
         />
-        {images.length > 1 && (
+        {allImages.length > 1 && (
           <>
             <Button
               variant="ghost"
@@ -53,13 +54,13 @@ export const LaptopGallery = ({ mainImage, extraImage, name }: LaptopGalleryProp
           </>
         )}
       </div>
-      {images.length > 1 && (
-        <div className="flex gap-2">
-          {images.map((img, index) => (
+      {allImages.length > 1 && (
+        <div className="flex gap-2 overflow-x-auto pb-2">
+          {allImages.map((img, index) => (
             <button
               key={index}
               onClick={() => setCurrentImage(img)}
-              className={`aspect-video w-24 rounded-md overflow-hidden border-2 transition-colors ${
+              className={`flex-shrink-0 aspect-video w-24 rounded-md overflow-hidden border-2 transition-colors ${
                 currentImage === img ? "border-blue-500" : "border-transparent"
               }`}
             >
