@@ -11,10 +11,6 @@ async def check_ip_middleware(
 ) -> JSONResponse:
     # try:
     client_ip = request.client.host
-    logger.info(f"Request URL: {request.url}")
-    logger.info(f"Request Method: {request.method}")
-    logger.info(f"Client IP: {client_ip}")
-
     if request.url.path == "/metrics":
         if client_ip != "10.10.103.5":
             logger.warning(f"Forbidden access attempt from IP: {client_ip}")

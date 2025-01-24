@@ -5,6 +5,8 @@
 -- Dumped from database version 17.2 (Debian 17.2-1.pgdg120+1)
 -- Dumped by pg_dump version 17.2 (Debian 17.2-1.pgdg120+1)
 
+-- Started on 2025-01-24 12:00:22 UTC
+
 SET statement_timeout = 0;
 SET lock_timeout = 0;
 SET idle_in_transaction_session_timeout = 0;
@@ -17,11 +19,33 @@ SET xmloption = content;
 SET client_min_messages = warning;
 SET row_security = off;
 
+--
+-- TOC entry 857 (class 1247 OID 16763)
+-- Name: energy_class_enum; Type: TYPE; Schema: public; Owner: main
+--
+
+CREATE TYPE public.energy_class_enum AS ENUM (
+    'Triple_A',
+    'Double_A',
+    'Single_A',
+    'A',
+    'B',
+    'C',
+    'D',
+    'E',
+    'F',
+    'G'
+);
+
+
+ALTER TYPE public.energy_class_enum OWNER TO main;
+
 SET default_tablespace = '';
 
 SET default_table_access_method = heap;
 
 --
+-- TOC entry 217 (class 1259 OID 16716)
 -- Name: alembic_version; Type: TABLE; Schema: public; Owner: main
 --
 
@@ -33,6 +57,75 @@ CREATE TABLE public.alembic_version (
 ALTER TABLE public.alembic_version OWNER TO main;
 
 --
+-- TOC entry 221 (class 1259 OID 16796)
+-- Name: desktop_pcs; Type: TABLE; Schema: public; Owner: main
+--
+
+CREATE TABLE public.desktop_pcs (
+    id uuid NOT NULL,
+    name character varying NOT NULL,
+    price double precision NOT NULL,
+    diagonal double precision,
+    cpu_model character varying,
+    ram_size integer,
+    storage_size integer,
+    gpu_maker character varying,
+    gpu_model character varying,
+    image character varying NOT NULL,
+    is_available boolean NOT NULL,
+    description text NOT NULL,
+    maker character varying NOT NULL,
+    is_for_gaming boolean NOT NULL,
+    is_for_home_studying boolean NOT NULL,
+    is_for_office boolean NOT NULL,
+    has_screen boolean NOT NULL,
+    is_mini boolean NOT NULL,
+    ram_type character varying,
+    ram_frequency integer,
+    cpu_maker character varying NOT NULL,
+    cpu_class character varying,
+    cpu_frequency double precision,
+    cpu_max_frequency double precision,
+    cpu_cores integer,
+    cpu_threads integer,
+    resolution character varying,
+    gpu_memory integer,
+    gpu_memory_type character varying,
+    power_supply_name character varying,
+    power_supply integer,
+    storage_type character varying,
+    storage_connection character varying,
+    extra_hardware character varying,
+    usb_a_2_0 integer,
+    usb_a_3_1 integer,
+    usb_type_c integer,
+    vga_connection integer,
+    hdmi_connection integer,
+    dp_connection integer,
+    case_name character varying,
+    case_type character varying,
+    motherboard character varying,
+    ethernet integer,
+    bluetooth character varying,
+    wireless character varying,
+    warranty integer,
+    installed_os character varying,
+    weight double precision,
+    width double precision,
+    height double precision,
+    depth double precision,
+    color character varying,
+    images_url json,
+    created_at timestamp without time zone NOT NULL,
+    updated_at timestamp without time zone NOT NULL,
+    user_id integer NOT NULL
+);
+
+
+ALTER TABLE public.desktop_pcs OWNER TO main;
+
+--
+-- TOC entry 222 (class 1259 OID 16810)
 -- Name: laptops; Type: TABLE; Schema: public; Owner: main
 --
 
@@ -40,42 +133,112 @@ CREATE TABLE public.laptops (
     id uuid NOT NULL,
     name character varying NOT NULL,
     price double precision NOT NULL,
-    screen_frequency character varying,
-    diagonal character varying NOT NULL,
-    resolution character varying NOT NULL,
-    screen_type character varying,
-    cpu_model character varying NOT NULL,
-    cpu_class character varying NOT NULL,
-    cpu_frequency character varying,
-    gpu_model character varying,
-    gpu_memory character varying,
-    ram_size character varying,
-    ram_type character varying,
-    ram_frequency character varying,
-    is_available boolean NOT NULL,
     maker character varying NOT NULL,
-    storage_size character varying,
+    screen_frequency integer,
+    diagonal double precision,
+    resolution character varying,
+    screen_type character varying,
+    cpu_maker character varying NOT NULL,
+    cpu_model character varying,
+    cpu_class character varying,
+    cpu_frequency double precision,
+    cpu_max_frequency double precision,
+    cpu_cores integer,
+    cpu_threads integer,
+    gpu_maker character varying,
+    gpu_model character varying,
+    gpu_memory integer,
+    gpu_memory_type character varying,
+    ram_size integer,
+    ram_type character varying,
+    ram_frequency integer,
+    storage_size integer,
+    storage_type character varying,
+    extra_hardware character varying,
+    usb_a_2_0 integer,
+    usb_a_3_1 integer,
+    usb_type_c integer,
+    vga_connection integer,
+    hdmi_connection integer,
+    dp_connection integer,
+    ethernet integer,
+    bluetooth character varying,
+    wireless character varying,
+    is_available boolean NOT NULL,
+    is_for_gaming boolean NOT NULL,
+    is_for_home_studying boolean NOT NULL,
+    is_for_office boolean NOT NULL,
+    warranty integer,
     installed_os character varying,
-    weight double precision NOT NULL,
+    weight double precision,
+    width double precision,
+    height double precision,
+    depth double precision,
     color character varying,
     description character varying,
     image character varying NOT NULL,
-    extra_image character varying,
+    images_url json,
     created_at timestamp without time zone NOT NULL,
     updated_at timestamp without time zone NOT NULL,
-    user_id integer NOT NULL,
-    cpu_cores integer,
-    cpu_threads integer,
-    gpu_memory_type character varying,
-    storage_type character varying,
-    hardware_type character varying,
-    warranty character varying
+    user_id integer NOT NULL
 );
 
 
 ALTER TABLE public.laptops OWNER TO main;
 
 --
+-- TOC entry 220 (class 1259 OID 16783)
+-- Name: monitors; Type: TABLE; Schema: public; Owner: main
+--
+
+CREATE TABLE public.monitors (
+    id uuid NOT NULL,
+    name character varying NOT NULL,
+    maker character varying NOT NULL,
+    price double precision NOT NULL,
+    diagonal double precision NOT NULL,
+    resolution character varying NOT NULL,
+    panel_type character varying NOT NULL,
+    refresh_rate integer NOT NULL,
+    image character varying NOT NULL,
+    is_available boolean NOT NULL,
+    images_url json,
+    description text NOT NULL,
+    brightness integer NOT NULL,
+    response_time integer NOT NULL,
+    contrast_ratio character varying NOT NULL,
+    aspect_ratio character varying NOT NULL,
+    color_gamut integer,
+    hdmi_connection integer,
+    dp_connection integer,
+    jack_connection integer,
+    vga_connection integer,
+    usb_2 integer,
+    usb_type_c integer,
+    usb_type_c_thunderbolt integer,
+    is_curved boolean NOT NULL,
+    vesa_mounting character varying NOT NULL,
+    has_speaker boolean,
+    pivot boolean,
+    is_adjustable_height boolean,
+    has_touchscreen boolean,
+    accessories character varying,
+    energy_class public.energy_class_enum,
+    width double precision,
+    height double precision,
+    depth double precision,
+    weight double precision,
+    warranty integer,
+    created_at timestamp without time zone NOT NULL,
+    updated_at timestamp without time zone NOT NULL,
+    user_id integer NOT NULL
+);
+
+
+ALTER TABLE public.monitors OWNER TO main;
+
+--
+-- TOC entry 219 (class 1259 OID 16734)
 -- Name: users; Type: TABLE; Schema: public; Owner: main
 --
 
@@ -98,6 +261,7 @@ CREATE TABLE public.users (
 ALTER TABLE public.users OWNER TO main;
 
 --
+-- TOC entry 218 (class 1259 OID 16733)
 -- Name: users_id_seq; Type: SEQUENCE; Schema: public; Owner: main
 --
 
@@ -113,6 +277,8 @@ CREATE SEQUENCE public.users_id_seq
 ALTER SEQUENCE public.users_id_seq OWNER TO main;
 
 --
+-- TOC entry 3404 (class 0 OID 0)
+-- Dependencies: 218
 -- Name: users_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: main
 --
 
@@ -120,6 +286,7 @@ ALTER SEQUENCE public.users_id_seq OWNED BY public.users.id;
 
 
 --
+-- TOC entry 3229 (class 2604 OID 16737)
 -- Name: users id; Type: DEFAULT; Schema: public; Owner: main
 --
 
@@ -127,72 +294,98 @@ ALTER TABLE ONLY public.users ALTER COLUMN id SET DEFAULT nextval('public.users_
 
 
 --
+-- TOC entry 3393 (class 0 OID 16716)
+-- Dependencies: 217
 -- Data for Name: alembic_version; Type: TABLE DATA; Schema: public; Owner: main
 --
 
 COPY public.alembic_version (version_num) FROM stdin;
-f13662033279
+6a748e229a69
 \.
 
 
 --
+-- TOC entry 3397 (class 0 OID 16796)
+-- Dependencies: 221
+-- Data for Name: desktop_pcs; Type: TABLE DATA; Schema: public; Owner: main
+--
+
+COPY public.desktop_pcs (id, name, price, diagonal, cpu_model, ram_size, storage_size, gpu_maker, gpu_model, image, is_available, description, maker, is_for_gaming, is_for_home_studying, is_for_office, has_screen, is_mini, ram_type, ram_frequency, cpu_maker, cpu_class, cpu_frequency, cpu_max_frequency, cpu_cores, cpu_threads, resolution, gpu_memory, gpu_memory_type, power_supply_name, power_supply, storage_type, storage_connection, extra_hardware, usb_a_2_0, usb_a_3_1, usb_type_c, vga_connection, hdmi_connection, dp_connection, case_name, case_type, motherboard, ethernet, bluetooth, wireless, warranty, installed_os, weight, width, height, depth, color, images_url, created_at, updated_at, user_id) FROM stdin;
+3a8d7472-c7cd-4596-9fbe-90e5d9b47ac1	Gaming Beast X900	1499.99	27	Intel Core i7-13700KF	32	2000	NVIDIA	RTX 4080	https://example.com/images/gaming-beast-x900.jpg	t	A powerful gaming PC designed for modern games at ultra settings.	CyberTech	t	f	f	t	f	DDR5	5600	Intel	High Performance	3.5	5.4	16	24	2560x1440	16	GDDR6X	Corsair RM850x	850	SSD	NVMe	RGB lighting, water cooling	2	4	2	0	2	3	Cooler Master H500	ATX Mid Tower	MSI Z790 Gaming Plus	1000	5.2	Wi-Fi 6	36	Windows 11 Pro	12.5	21.5	48.5	45	Black	[{"url": "https://example.com/images/gaming-beast-x900-side.jpg"}, {"url": "https://example.com/images/gaming-beast-x900-front.jpg"}]	2025-01-21 15:17:11.657989	2025-01-21 15:17:11.657994	1
+1a6f0c8a-9845-4c64-904d-46ee7fab1254	Office Pro 3000	599.99	24	Intel Core i5-12400	16	512	Intel	Integrated UHD Graphics 730	https://example.com/images/office-pro-3000.jpg	t	An efficient and reliable PC for office tasks and productivity.	BizTech	f	t	t	t	t	DDR4	3200	Intel	Mid Range	2.5	4.4	6	12	1920x1080	\N	\N	Cooler Master V550	550	SSD	SATA	Built-in webcam, card reader	4	2	1	1	1	0	Compact BizBox	Mini Tower	Gigabyte B660M DS3H	1000	5.1	Wi-Fi 5	24	Windows 11 Home	6.8	18	38	30	Silver	[{"url": "https://example.com/images/office-pro-3000-side.jpg"}, {"url": "https://example.com/images/office-pro-3000-front.jpg"}]	2025-01-21 15:17:31.035647	2025-01-21 15:17:31.035653	1
+068a5627-037e-4fc7-98fb-4931fc88990f	Home Compact 500	499.99	21.5	AMD Ryzen 3 4300G	8	256	AMD	Integrated Radeon Graphics	https://www.omen.com/content/dam/sites/omen/worldwide/desktops/omen-45l-atx-pc-case/group-16-copy-3.png	t	Compact and affordable PC for everyday home use, web browsing, and streaming.	HomeTech	f	t	t	t	t	DDR4	3000	AMD	Entry Level	3.8	4	4	8	1920x1080	\N	\N	Silent Power 300W	300	SSD	SATA	Card reader	4	2	0	1	1	0	Mini Box 300	Mini Tower	ASRock A520M-HDV	1000	4.2	Wi-Fi 4	12	Windows 10 Home	5.5	17.5	34	28.5	Black	[]	2025-01-21 16:57:21.987872	2025-01-21 16:57:21.987881	1
+9476dc16-18e4-465a-8705-14c1467c5bd5	Workstation Pro 8000	2999.99	32	AMD Ryzen Threadripper 3960X	128	4000	NVIDIA	RTX A6000	https://redtech.lk/wp-content/uploads/2021/05/SAMA-DX33306-Acrylic-Transparent-Panel-ATX-Gaming-PC-Case.png	t	High-performance workstation designed for 3D rendering, video editing, and professional workflows.	ProBuilds	f	f	t	f	f	DDR4 ECC	3200	AMD	High Performance	3.8	4.5	24	48	\N	48	GDDR6	Platinum 1000W	1000	SSD	NVMe	Dual Ethernet, advanced cooling	4	6	2	0	2	4	Workstation Case Pro	Full Tower	ASUS ROG Zenith II Extreme	2500	5.2	Wi-Fi 6E	48	Windows 11 Pro	20	24	60	55	Gray	[]	2025-01-21 16:58:11.427743	2025-01-21 16:58:11.427751	1
+015b301b-c3c4-4ec7-b2f7-5a24e6a79af2	Office Starter 100	399.99	19.5	Intel Celeron G5905	4	128	Intel	Integrated UHD Graphics 610	https://www.yycase.com/proimages/cs/pro/pc/04/39.png	t	A cost-effective solution for light office work and basic applications.	SimpleTech	f	t	t	t	t	DDR4	2400	Intel	Entry Level	3.5	\N	2	2	1366x768	\N	\N	Standard 250W	250	SSD	SATA	None	4	1	0	1	1	0	Starter Mini Case	Mini Tower	Gigabyte H410M S2H	100	4.0	Wi-Fi 4	12	Windows 10 Home	4.2	16	32	28	Black	[]	2025-01-21 16:58:57.717231	2025-01-21 16:58:57.717238	1
+5fac4e3a-7c53-4371-b805-009fbc705468	Gaming Extreme 5000	2499.99	32	AMD Ryzen 9 7900X	64	2000	AMD	Radeon RX 7900 XTX	https://cougargaming.com/_cgrwdr_/wwdpp/wp-content/uploads/2019/11/products_conquer-2-1.png	t	An ultimate gaming machine for 4K gaming and competitive esports.	XtremePC	t	f	f	f	f	DDR5	6000	AMD	High Performance	4.7	5.6	12	24	\N	24	GDDR6	Gold 850W	850	SSD	NVMe	RGB lighting, liquid cooling, PCIe 5.0	2	4	2	0	2	3	Xtreme Tower	Mid Tower	MSI B650 Tomahawk	2500	5.2	Wi-Fi 6	36	Windows 11 Pro	15	22	50	48	Black	[]	2025-01-21 16:59:43.602007	2025-01-21 16:59:43.602013	1
+59c2aebb-b418-405b-a8f8-7e4b72eaea7b	All-in-One Flex 24	899.99	24	Intel Core i5-1135G7	16	1024	Intel	Integrated Iris Xe Graphics	https://tolvutek.is/images/prod/D/D/8/C/DD8C99A4-E8D4-42A0-8D6E-7166CA91EEAB_1_big.png	t	A sleek all-in-one PC ideal for home and office use.	TechFlex	f	t	t	t	f	DDR4	3200	Intel	Mid Range	2.4	4.2	4	8	1920x1080	\N	\N	Integrated 90W	90	SSD	NVMe	Webcam, microphone, speakers	2	3	1	0	1	0	All-in-One Enclosure	All-in-One	Custom	1000	5.0	Wi-Fi 5	24	Windows 11 Home	7.2	54	43	20	White	[]	2025-01-21 17:00:25.691534	2025-01-21 17:00:25.69154	1
+61a4c621-1a76-48e3-9524-5b7f442b5995	Gaming Starter 2500	799.99	\N	Intel Core i3-12100F	16	512	NVIDIA	GeForce GTX 1660 Super	https://www.fingers.co.in/secure/api/image-tool/index.php?src=https://www.fingers.co.in/secure/api/uploads/products/1726895257_Website-images1.png&w=500&h=500&zc=2	t	Affordable gaming PC designed for entry-level 1080p gaming.	BudgetGaming	t	f	f	f	f	DDR4	3200	Intel	Entry Level	3.3	4.3	4	8	\N	6	GDDR6	Bronze 450W	450	SSD	NVMe	RGB fans	4	2	0	0	1	2	Starter Gaming Case	Mid Tower	ASUS Prime B660M	1000	4.2	Wi-Fi 5	12	Windows 11 Home	8	22	46	43	Black	[{"url": "https://example.com/images/gaming-starter-2500-side.jpg"}, {"url": "https://example.com/images/gaming-starter-2500-front.jpg"}]	2025-01-24 11:01:42.059191	2025-01-24 11:01:42.059197	1
+763961f4-35bb-4e67-a621-22f177fcdddf	OfficePro 9000	1399.99	\N	Intel Core i7-13700	32	1000	Intel	Integrated UHD Graphics 770	https://static.wixstatic.com/media/db5cbe_640257b0d20947cdb7e90a28bedc3f5e.png/v1/fill/w_736,h_930,al_c,q_90,usm_0.66_1.00_0.01,enc_avif,quality_auto/db5cbe_640257b0d20947cdb7e90a28bedc3f5e.png	t	A high-end office PC designed for multitasking and productivity-focused workflows.	OfficeTech	f	t	t	f	f	DDR5	4800	Intel	Mid Range	2.1	5.2	16	24	\N	\N	\N	Gold 550W	550	SSD	NVMe	SD card reader	4	3	1	0	1	1	Pro Office Case	Mid Tower	Gigabyte Z790 AORUS	2500	5.0	Wi-Fi 6	24	Windows 11 Pro	10	22.5	48	44	Silver	[]	2025-01-24 11:03:08.097093	2025-01-24 11:03:08.097097	1
+58005934-32b8-4746-a583-690f81765a7c	OfficePro 9000	1399.99	\N	Intel Core i7-13700	32	1000	Intel	Integrated UHD Graphics 770	https://static.wixstatic.com/media/db5cbe_640257b0d20947cdb7e90a28bedc3f5e.png/v1/fill/w_736,h_930,al_c,q_90,usm_0.66_1.00_0.01,enc_avif,quality_auto/db5cbe_640257b0d20947cdb7e90a28bedc3f5e.png	t	A high-end office PC designed for multitasking and productivity-focused workflows.	OfficeTech	f	t	t	f	f	DDR5	4800	Intel	Mid Range	2.1	5.2	16	24	\N	\N	\N	Gold 550W	550	SSD	NVMe	SD card reader	4	3	1	0	1	1	Pro Office Case	Mid Tower	Gigabyte Z790 AORUS	2500	5.0	Wi-Fi 6	24	Windows 11 Pro	10	22.5	48	44	Silver	[]	2025-01-24 11:04:22.629523	2025-01-24 11:04:22.629528	1
+71cf122b-10fd-469a-a85c-6f8ca08b1d14	HomeMaster 300	649.99	\N	AMD Ryzen 5 5600G	16	512	AMD	Integrated Radeon Vega Graphics	https://images.shopcdn.co.uk/50/93/5093ef73cabf40dbd8ea152ad2d49127/512x512/webp/fit?quality=80&compression=80	t	A versatile PC suitable for home tasks, studying, and casual gaming.	HomeTech	t	t	t	f	f	DDR4	3200	AMD	Mid Range	3.9	4.4	6	12	\N	\N	\N	Standard 400W	400	SSD	SATA	None	4	2	0	1	1	0	HomeMaster Mini	Mini Tower	ASRock B550M	1000	4.2	Wi-Fi 5	24	Windows 11 Home	6.5	19	40	35	Black	[]	2025-01-24 11:05:24.203338	2025-01-24 11:05:24.203344	1
+80f4e7c6-39c7-469f-9c27-b0fcf08aca1c	OfficeMini Silent	549.99	\N	Intel Core i5-10210U	8	256	Intel	Integrated UHD Graphics 620	https://m.media-amazon.com/images/I/41CVT9W9EeL._AC_UF894,1000_QL80_.jpg	t	A compact, silent mini PC ideal for quiet office environments.	QuietTech	f	t	t	f	t	DDR4	2666	Intel	Entry Level	1.6	4.2	4	8	\N	\N	\N	Integrated 65W	65	SSD	M.2 SATA	None	2	2	1	0	1	1	Silent Mini Case	Mini PC	Custom	1000	5.0	Wi-Fi 5	12	Windows 10 Pro	1.8	15	4.5	14	Gray	[]	2025-01-24 11:06:25.750324	2025-01-24 11:06:25.75033	1
+\.
+
+
+--
+-- TOC entry 3398 (class 0 OID 16810)
+-- Dependencies: 222
 -- Data for Name: laptops; Type: TABLE DATA; Schema: public; Owner: main
 --
 
-COPY public.laptops (id, name, price, screen_frequency, diagonal, resolution, screen_type, cpu_model, cpu_class, cpu_frequency, gpu_model, gpu_memory, ram_size, ram_type, ram_frequency, is_available, maker, storage_size, installed_os, weight, color, description, image, extra_image, created_at, updated_at, user_id, cpu_cores, cpu_threads, gpu_memory_type, storage_type, hardware_type, warranty) FROM stdin;
-a22aefbe-23a8-4cb9-97cd-54e94d239213	Lenovo Legion 5 Pro	1699	165Hz	16 inches	2560x1600	IPS	AMD Ryzen 7 5800H	Zen 3	3.2 GHz	NVIDIA GeForce RTX 3070	8GB	16GB	DDR4	3200 MHz	t	Lenovo	1TB	Windows 11	2.45	Storm Grey	A high-performance gaming laptop with an immersive display.	https://techbuyz.co.ke/wp-content/uploads/2023/06/lenovo-legion-5pro.jpg	https://assets.mspimages.in/gear/wp-content/uploads/2021/11/Lenovo-Legion-5-Pro-Review.jpg	2025-01-02 23:19:37.092598	2025-01-02 23:19:37.092602	12	8	16	GDDR6	SSD	Gaming Laptop	2 years
-1c38996b-0776-4b45-9190-2d6be6acedd4	HP Spectre x360	1499	60Hz	13.5 inches	1920x1280	OLED	Intel Core i7-1255U	Alder Lake	1.7 GHz	Intel Iris Xe Graphics	Integrated	16GB	LPDDR4x	4266 MHz	t	HP	1TB	Windows 11	1.3	Nightfall Black	A premium convertible laptop with stunning visuals and portability.	https://cdn.mos.cms.futurecdn.net/CsxfQ3MaDZ8A9AfqSiLf4.jpg	https://i.pcmag.com/imagery/reviews/03jMpJIZFLZ0KJpnE2bBfjY-1.fit_scale.size_760x427.v1704305096.jpg	2025-01-02 23:20:55.512546	2025-01-02 23:20:55.51255	12	10	12	N/A	SSD	Convertible	1 year
-09d2cb3b-d3b2-45bc-962f-89e837bdf7ef	ASUS ROG Zephyrus G14	1599	120Hz	14 inches	2560x1440	IPS	AMD Ryzen 9 6900HS	Zen 3+	3.3 GHz	AMD Radeon RX 6800S	8GB	32GB	DDR5	4800 MHz	t	ASUS	1TB	Windows 11	1.7	Moonlight White	A powerful and compact gaming laptop with advanced cooling.	https://rog.asus.com/media/170728681833.jpg	https://i.pcmag.com/imagery/reviews/06n6ndAJmuUvKYLGv1njcn0-1.fit_scale.size_760x427.v1710540681.jpg	2025-01-02 23:21:36.679546	2025-01-02 23:21:36.67955	12	8	16	GDDR6	SSD	Gaming Laptop	1 year
-6f33a19f-42e5-44c5-913d-89f8b152209f	Dell XPS 13	1550	60Hz	13.4 inches	1920x1200	IPS	Intel Core i7-1165G7	Tiger Lake	2.8 GHz	Intel Iris Xe Graphics	Integrated	16GB	LPDDR4x	4267 MHz	t	Dell	512GB	Windows 11	1.2	Silver	A compact and powerful ultrabook ideal for professionals.	https://i.pcmag.com/imagery/reviews/07dUbrqwNq4AWkV4IIOH7HZ-1..v1658955111.jpg	https://www.delltechnologies.com/uploads/2022/01/xpsblog2.png	2025-01-02 23:17:13.443448	2025-01-03 18:22:30.970969	12	4	8	N/A	SSD	Ultrabook	1 year
-49cf7763-ff93-4dd0-a4f8-c72a51bfdfe5	HP Spectre x360 14	1349.99	60Hz	13.5"	1920x1280	OLED Touch	Intel Core i7-1165G7	Tiger Lake	2.8 GHz	Intel Iris Xe	Shared	16GB	LPDDR4x	4266MHz	t	HP	512GB	Windows 11 Home	1.3	Nightfall Black	Premium 2-in-1 laptop with stunning OLED display and excellent performance.	https://dv9dhd03d71d4.cloudfront.net/eyJidWNrZXQiOiJwcm9kLXd3dy1hc3NldHMtcGVyZmVjdHJlYyIsImtleSI6ImltYWdlcy9wcm9kdWN0cy9sYXB0b3BzL1BlcmZlY3RSZWNfTGFwdG9wX0hQX1NwZWN0cmV4MzYwMTQucG5nIiwiZWRpdHMiOnsicmVzaXplIjp7IndpZHRoIjo2MDAsImZpdCI6ImNvdmVyIn19fQ==	https://ssl-product-images.www8-hp.com/digmedialib/prodimg/lowres/c06910620.png?impolicy=Png_Res	2025-01-05 12:26:36.655064	2025-01-05 12:36:05.619344	14	4	8	Integrated	SSD	2-in-1 Convertible	1 year
-a2901d18-b97a-48f9-9185-7a2fa8aafa80	MacBook Air M2	1400	60Hz	13.6 inches	2560x1664	Retina	Apple M2	ARM	3.5 GHz	Integrated Apple GPU	Shared	8GB	Unified	N/A	t	Apple	256GB	macOS Ventura	1.24	Space Gray	A lightweight and efficient laptop with cutting-edge Apple Silicon.	https://www.cnet.com/a/img/resize/aba646bbfefdaae2a6aed6d516512f33e3b3a0c9/hub/2022/07/12/995173ef-de01-45be-a714-c5d581f4bd5c/macbook-air-m2-2022-2.jpg?auto=webp&width=1200	https://images.expertreviews.co.uk/wp-content/uploads/2022/08/m2_macbook_air_2022_review_0.jpg	2025-01-02 23:18:16.447402	2025-01-03 18:38:11.392737	12	8	8	N/A	SSD	Ultrabook	1 year
-736d6898-8217-449a-a654-82feed1d168b	Dell Inspiron 15	749.99	60Hz	15.6"	1920x1080	IPS	Intel Core i5-1135G7	Tiger Lake	2.4 GHz	Intel Iris Xe	Shared	8GB	DDR4	3200MHz	t	Dell	512GB	Windows 10 Home	1.8	Silver	A versatile laptop with great performance for everyday use.	https://www.bhphotovideo.com/images/images2500x2500/dell_i15rmt_5100slv_inspr_5521_i5_4200u_6gb_500gb_windows_8_15_6_1004779.jpg	https://www.dell.com/sites/csimages/Merchandizing_Imagery/all/inspiron-15-7000-2-in-1-black-edition-laptop.jpg	2025-01-04 22:49:35.104677	2025-01-04 22:49:35.104684	14	4	8	Integrated	SSD	Ultrabook	1 year
-7a5755d0-49d0-4143-83bc-dc3d945e3bcb	ASUS ROG Zephyrus G14	1599.99	120Hz	14"	2560x1440	IPS	AMD Ryzen 9 5900HS	HS-Series	3.3 GHz	NVIDIA GeForce RTX 3060	6GB	16GB	DDR4	3200MHz	t	ASUS	1TB	Windows 10 Home	1.7	White	A powerful gaming laptop with exceptional performance.	https://d2ki7eiqd260sq.cloudfront.net/h732-10-74af30d6-e1af-4d0a-a851-eb8b5ba872a2.png	https://m.media-amazon.com/images/I/61sXQQpkMPL.jpg	2025-01-04 22:50:08.890056	2025-01-05 11:14:40.042063	14	8	16	GDDR6	SSD	Gaming Laptop	2 years
-b6740305-4254-4411-af91-4ca6a7bf6a8a	Lenovo ThinkPad X1 Carbon Gen 10	1699.99	60Hz	14"	1920x1200	IPS	Intel Core i7-1260P	Alder Lake	2.1 GHz	Intel Iris Xe	Shared	16GB	LPDDR5	5200MHz	t	Lenovo	1TB	Windows 11 Pro	1.1	Black	Lightweight, durable, and powerful business laptop with enterprise-grade security.	https://p1-ofp.static.pub//fes/cms/2024/08/27/yd5dqi756ec0vr9a09fhc5s90tx4l6387783.png	https://www.lenovoarvutid.ee/wp-content/uploads/2022/05/ThinkPad_X1_Carbon_Gen_10_CT1_01-800x800.png	2025-01-05 12:26:51.814234	2025-01-05 12:36:58.447114	14	12	16	Integrated	SSD	Business Laptop	3 years
-8da15280-18e1-4d52-83bd-6e0e08dbb366	Acer Swift 3	849.99	60Hz	14"	1920x1080	IPS	AMD Ryzen 7 5700U	Zen 3	1.8 GHz	AMD Radeon Graphics	Shared	8GB	DDR4	3200MHz	t	Acer	512GB	Windows 10 Home	1.2	Silver	Affordable and portable laptop with excellent battery life and performance.	https://m.media-amazon.com/images/I/71c5W9NxN5L._AC_SL1500_.jpg	https://m.media-amazon.com/images/I/71LtJ8i17mL._AC_SL1500_.jpg	2025-01-05 12:27:21.651854	2025-01-05 12:27:21.65186	14	8	16	Integrated	SSD	Ultrabook	1 year
-fc50ed9d-0678-4ae1-837f-287925497e60	Apple MacBook Pro 16	2499.99	120Hz	16"	3456x2234	Liquid Retina XDR	Apple M2 Pro	ARM	3.2GHz	Integrated 16-core GPU	Shared	16GB	Unified Memory	NA	t	Apple	512GB	macOS Ventura	2.1	Space Gray	Professional-grade laptop with exceptional display and performance.	https://pilt.elisa.ee/325b1cad-b7b7-4274-915e-0e0267c8be6b.png	https://crdms.images.consumerreports.org/prod/products/cr/models/408691-15-to-16-inch-laptops-apple-macbook-pro-16-12-core-m2-pro-512gb-32gb-10034458.png	2025-01-05 12:48:54.509774	2025-01-05 12:57:16.224813	14	10	10	Unified	SSD	Laptop	1 year
-16712ea1-9eb3-46dc-aa6b-3d1a76f72069	Asus ROG Zephyrus G14	1599.99	120Hz	14"	2560x1600	IPS	AMD Ryzen 9 6900HS	Gaming	3.3GHz	NVIDIA GeForce RTX 3060	6GB	16GB	DDR5	4800MHz	t	Asus	1TB	Windows 11 Home	1.6	Eclipse Gray	Portable gaming powerhouse with excellent performance.	https://dlcdnwebimgs.asus.com/files/media/F78BEA60-7937-4C78-A45A-F1AE66AADC68/v1/images/large/1x/audio_laptop_solid.png	https://dlcdnwebimgs.asus.com/files/media/59679AA3-66F7-4DBB-BA4C-1A13376F5B4C/v1/images/large/1x/carousel_4_1.png	2025-01-05 12:49:09.739613	2025-01-05 12:57:53.900873	14	8	16	GDDR6	SSD	Gaming Laptop	1 year
-73d6e786-85bc-4e24-847d-617bee103ffd	Gigabyte Aero 16 OLED	2099.99	60Hz	16"	3840x2400	OLED	Intel Core i7-12700H	Alder Lake	2.3 GHz	NVIDIA GeForce RTX 3070 Ti	8GB	16GB	DDR5	4800MHz	t	Gigabyte	1TB	Windows 11 Home	2.3	Silver	High-performance laptop for creators with stunning 4K OLED display.	https://www.scan.co.uk/images/infopages/laptops/gigabyte/aero_16/2023/bsf/topimg.png	https://www.gigabyte.com/FileUpload/Global/KeyFeature/2309/innergigabyteimages/color.png	2025-01-05 12:27:32.892925	2025-01-05 12:34:39.624417	14	14	20	GDDR6	SSD	Creator Laptop	2 years
-807fb5a5-0aad-406a-941c-91beccd0aa5d	MSI GE76 Raider	2499.99	144Hz	17.3"	1920x1080	IPS	Intel Core i9-12900HK	Alder Lake	3.8 GHz	NVIDIA GeForce RTX 3080 Ti	16GB	32GB	DDR5	4800MHz	t	MSI	2TB	Windows 11 Home	2.9	Titanium Blue	Ultimate gaming laptop with high refresh rate and cutting-edge performance.	https://asset.msi.com/resize/image/global/product/product_1639040638b7515d6bb3107aa4916d9302bac76680.png62405b38c58fe0f07fcef2367d8a9ba1/600.png	https://i5.walmartimages.com/seo/MSI-GE-Series-17-3-360-Hz-IPS-Intel-Core-i7-12th-Gen-12700H-2-30GHz-NVIDIA-GeForce-RTX-3070-Ti-Laptop-GPU-32-GB-DDR5-1-TB-PCIe-SSD-Windows-11-Home-64_e0ee598a-4340-461b-b2e3-e6fc289f18f6.c08f0e26cf4705c6e84452c422b379ac.png?odnHeight=768&odnWidth=768&odnBg=FFFFFF	2025-01-05 12:27:07.307903	2025-01-05 12:38:03.249437	14	14	20	GDDR6	SSD	Gaming Laptop	2 years
-7609e78a-00ae-49f1-8677-3db83555df80	Huawei MateBook X Pro 2023	1999.99	90Hz	14.2"	3120x2080	LTPS	Intel Core i7-1360P	Ultrabook	3.6GHz	Intel Iris Xe	Integrated	16GB	LPDDR5	5200MHz	t	Huawei	1TB	Windows 11 Pro	1.26	Space Grey	A lightweight and elegant ultrabook with a 3:2 display and long battery life.	https://consumer.huawei.com/content/dam/huawei-cbg-site/cee-nordics/common/mkt/pdp/laptops/matebook-x-pro-2023-13th-gen-core/img/huawei-matebook-x-pro-display.png	https://consumer.huawei.com/content/dam/huawei-cbg-site/common/mkt/pdp/pc/matebook-x-pro-ultra-premium-edition/images/design/huawei-matebook-x-pro-colour-01-02.png	2025-01-05 12:52:58.47575	2025-01-05 13:01:32.952703	14	12	16	Shared	SSD	Ultrabook	2 years
-631f5908-93f9-421e-8567-dcae034ebfbd	HP Omen 16	1699.99	144Hz	16.1"	1920x1080	IPS	AMD Ryzen 7 6800H	Gaming	3.2GHz	NVIDIA GeForce RTX 3060	6GB	16GB	DDR4	3200MHz	t	HP	1TB	Windows 11 Home	2.4	Shadow Black	A sleek and stylish gaming laptop with impressive power and performance.	https://www.omen.com/content/dam/sites/omen/worldwide/laptops/2023-omen-16-intel/hero-1-v2-2x.png	https://www.omen.com/content/dam/sites/omen/worldwide/laptops/2022-omen-16-intel/22C1_Omen_Hendricks_16_60w_NonNumpad_1_Zone_ShadowBlack_NT_nonODD_nonFPR_CoreSet_RearLeft.png	2025-01-05 12:52:39.438373	2025-01-05 13:02:21.339758	14	8	16	GDDR6	SSD	Gaming Laptop	1 year
-1b1f7c72-9f45-41ed-8277-33af8d045cd3	Gigabyte AERO 16 OLED	2399.99	60Hz	16"	3840x2400	OLED	Intel Core i9-12900HK	High-End	2.5GHz	NVIDIA GeForce RTX 3080 Ti	16GB	32GB	DDR5	4800MHz	t	Gigabyte	2TB	Windows 11 Pro	2.1	Silver	A premium laptop designed for content creators with stunning visuals and top-tier performance.	https://www.aorus.com/event/laptops/creator/assets/images/AERO-16-OLED.png	https://www.gigabyte.com/FileUpload/Global/KeyFeature/2309/innergigabyteimages/mux3.png	2025-01-05 12:52:18.671625	2025-01-05 13:03:02.813742	14	14	20	GDDR6	SSD	Creative Workstation	2 years
-486d9665-84ab-4923-8cee-19be1e9d4561	Alienware x17 R2	2999.99	360Hz	17.3"	1920x1080	IPS	Intel Core i7-12800HX	Gaming	2.4GHz	NVIDIA GeForce RTX 3070 Ti	8GB	32GB	DDR5	4800MHz	t	Alienware	2TB	Windows 11 Home	3.2	Lunar Light	Cutting-edge gaming laptop with a blazing-fast 360Hz display.	https://media-ik.croma.com/prod/https://media.croma.com/image/upload/v1715939127/Croma%20Assets/Computers%20Peripherals/Laptop/Images/250603_0_t7jbb3.png	https://tech.co.za/wp-content/uploads/2022/07/laptop-alienware-x17-r2-nonlit-touchpad-gallery-7.png	2025-01-05 12:50:48.642775	2025-01-05 13:04:19.031323	14	16	24	GDDR6	SSD	Gaming Laptop	1 year
-22fdc83c-f6bd-4bc5-a29a-62e02eacdf29	MSI Titan GT77	3999.99	144Hz	17.3"	3840x2160	Mini LED	Intel Core i9-13980HX	Gaming	3.5GHz	NVIDIA GeForce RTX 4090	16GB	64GB	DDR5	5600MHz	t	MSI	4TB	Windows 11 Pro	3.78	Black	Unparalleled performance for extreme gaming and creative work.	https://storage-asset.msi.com/global/picture/image/feature/nb/GT/GT77-13V/images/GT77-13V-cherry-laptop.png	https://storage-asset.msi.com/global/picture/image/feature/nb/GT/GT77/bundle-laptop-m.png	2025-01-05 12:50:37.505181	2025-01-05 13:05:08.916633	14	24	32	GDDR6	SSD	Extreme Gaming Laptop	3 years
-405fc963-eaa0-4256-ad9f-1c51eea7b65d	Acer Predator Helios 300	1599.99	165Hz	15.6"	2560x1440	IPS	Intel Core i7-12700H	Gaming	2.3GHz	NVIDIA GeForce RTX 3060	6GB	16GB	DDR5	4800MHz	t	Acer	1TB	Windows 11 Home	2.3	Black	High-performance gaming laptop with a stunning 165Hz display.	https://cdn.uc.assets.prezly.com/7f2be50f-fd1c-4538-a4b3-d9f382044a8c/Triton%20300%20-%20Floating.png	https://cdn.uc.assets.prezly.com/c1c2be80-75cf-4f19-83b4-85b6c9a8b09d/PREDATOR-HELIOS-300-SpatialLabs%E2%84%A2-Edition-PH315-55s-04.png	2025-01-05 12:50:05.755646	2025-01-05 13:06:19.911948	14	14	20	GDDR6	SSD	Gaming Laptop	2 years
-b9a7e060-dd07-44f9-920c-f240e1e3a672	Lenovo ThinkPad X1 Carbon Gen 10	1699.99	60Hz	14"	1920x1200	Anti-glare IPS	Intel Core i7-1265U	Business	1.8GHz	Integrated Intel Iris Xe	Shared	16GB	LPDDR4x	4266MHz	t	Lenovo	1TB	Windows 11 Pro	1.13	Black	Ultra-light business laptop with advanced security features.	https://www.lenovoarvutid.ee/wp-content/uploads/2022/05/ThinkPad_X1_Carbon_Gen_10_CT1_07.png	https://p3-ofp.static.pub/fes/cms/2023/02/07/9sfuhvon0x9fle312enou5d3cmfuxn266002.png	2025-01-05 12:49:17.992142	2025-01-05 13:07:10.976577	14	10	12	NA	SSD	Business Laptop	3 years
-aee7c3b3-7e91-4461-925f-b1488a9fbdfd	HP Spectre x360 14	1549.99	60Hz	13.5"	3000x2000	OLED Touchscreen	Intel Core i7-1260P	Mobile	2.1GHz	Integrated Intel Iris Xe	Shared	16GB	LPDDR4x	4266MHz	t	HP	1TB	Windows 11 Home	1.36	Nightfall Black	Versatile 2-in-1 laptop with a stunning OLED display.	https://i.pcmag.com/imagery/articles/06lCJHnHDqf33pmyq7rFcM5-2..v1601568716.png	https://wise-tech.com.pk/wp-content/uploads/2023/04/HP-Spectre-14-x360.png	2025-01-05 12:49:01.953834	2025-01-05 13:07:57.355081	14	12	16	NA	SSD	Convertible	1 year
-fe85d764-7c17-4388-8088-889cfbcb7b2b	Dell XPS 15	1899.99	60Hz	15.6"	3840x2160	IPS	Intel Core i7-12700H	High Performance	2.3GHz	NVIDIA GeForce RTX 3050 Ti	4GB	16GB	DDR5	4800MHz	t	Dell	1TB	Windows 11 Home	1.84	Silver	High-performance ultrabook with a stunning 4K display.	https://astringo-rugged.com/wp-content/uploads/2023/02/9310_9710_9520-600x600.png	https://vistaitgroup.com/pub/media/catalog/product/cache/9285745875a6e7569e051d4003ebf2cf/x/p/xps-15-9520.png	2025-01-05 12:48:42.18055	2025-01-05 13:08:43.055885	14	12	20	GDDR6	SSD	Ultrabook	2 years
-aa9e593a-bb24-4e85-b962-dbada82a8439	Acer Swift 3	749.99	60Hz	14"	1920x1080	IPS	AMD Ryzen 7 5700U	Ultrabook	1.8GHz	Integrated AMD Radeon Graphics	Shared	8GB	DDR4	3200MHz	t	Acer	512GB	Windows 10 Home	1.2	Silver	Budget-friendly ultrabook with solid performance.	https://myanmartechnovation.com/wp-content/uploads/2021/03/swift3-pink-1.png	https://static1.xdaimages.com/wordpress/wp-content/uploads/2022/04/acer-swift-3-sf314-512-512t-FpBl-pure-silver-gallery-03.png	2025-01-05 12:49:29.022913	2025-01-05 12:56:25.062289	14	8	16	NA	SSD	Laptop	1 year
-a7bd298d-8725-4c66-9e78-633c223f6937	Dell XPS 17 9720	2499.99	60Hz	17"	3840x2400	IPS	Intel Core i7-12700H	Ultrabook	2.3GHz	NVIDIA GeForce RTX 3050	4GB	16GB	DDR5	4800MHz	t	Dell	1TB	Windows 11 Pro	2.5	Platinum Silver	A premium ultrabook with a stunning 4K display and exceptional performance for professionals.	https://i.dell.com/is/image/DellContent/content/dam/ss2/product-images/dell-client-products/notebooks/xps-notebooks/xps-17-9720/media-gallery/notebook-xps-17-9720-silver-gallery-3.psd?fmt=png-alpha&pscan=auto&scl=1&hei=402&wid=658&qlt=100,1&resMode=sharp2&size=658,402&chrss=full	https://astringo-rugged.com/wp-content/uploads/2023/02/9320-600x600.png	2025-01-05 12:52:48.401642	2025-01-05 12:58:44.923839	14	14	20	GDDR6	SSD	Ultrabook	2 years
-68274bd2-05cc-4783-aa7a-59f3410a5e40	Lenovo Legion 7i Pro	1899.99	240Hz	16"	2560x1600	IPS	Intel Core i7-13700H	Gaming	3.4GHz	NVIDIA GeForce RTX 4070	8GB	16GB	DDR5	5200MHz	t	Lenovo	1TB	Windows 11 Home	2.5	Storm Grey	A powerful gaming laptop with cutting-edge graphics and ultra-fast refresh rate.	https://p2-ofp.static.pub//fes/cms/2024/09/12/hdtezbo787yrezwa710a384b6d6v6x258771.png	https://p4-ofp.static.pub/fes/cms/2022/12/15/uef7zf0vtjbk6m1hqzcxvskddhvp09851403.png	2025-01-05 12:52:30.312295	2025-01-05 12:59:35.676582	14	14	20	GDDR6	SSD	Gaming Laptop	2 years
-afa0ea8e-bf46-4da1-a13b-973c33ee1928	Razer Blade 14	1999.99	165Hz	14"	2560x1440	OLED	AMD Ryzen 9 6900HX	Gaming	3.3GHz	NVIDIA GeForce RTX 3070 Ti	8GB	16GB	DDR5	4800MHz	t	Razer	1TB	Windows 11 Home	1.78	Matte Black	Compact yet powerful gaming laptop for on-the-go enthusiasts.	https://assets3.razerzone.com/zCbHcNbGxjX08_GwS4jRL61QNBc=/1500x1000/https%3A%2F%2Fmedias-p1.phoenix.razer.com%2Fsys-master-phoenix-images-container%2Fhaf%2Fh7b%2F9720377704478%2Fblade14-p10-black-500x500.png	https://1.bp.blogspot.com/-4m-z4jE8NJM/WKMdm_FaEbI/AAAAAAAAcE8/sxrLIdhaS5cpCEmnFGj8WjLJ8z11Y9M0wCLcB/s1600/Razer_Blade_1_Hero_Chroma.png	2025-01-05 12:50:22.612801	2025-01-05 13:00:18.670579	14	8	16	GDDR6	SSD	Gaming Ultrabook	2 years
-5b3a995a-7259-421e-ba5b-80a2ded2ac9d	Asus ROG Strix Scar 17	2899.99	240Hz	17.3"	3840x2160	IPS	AMD Ryzen 9 7945HX	Gaming	3.5GHz	NVIDIA GeForce RTX 4080	12GB	32GB	DDR5	5600MHz	t	Asus	2TB	Windows 11 Pro	3	Black with RGB accents	The ultimate gaming beast for competitive players.	https://dlcdnwebimgs.asus.com/gain/475A387F-8E63-432D-BA0C-61AA20AF1D88/w1000/h732	https://dlcdnwebimgs.asus.com/files/media/E2F08C81-7CDB-42B7-9657-C106E47C4941/v2/images/large/1x/8__design_laptop_purple.png	2025-01-05 12:50:13.465331	2025-01-05 13:00:54.42145	14	16	32	GDDR6	SSD	Gaming Laptop	1 year
-07faa3b4-98ec-4606-b07f-894241aa3f27	HP Chromebook 14a	249.99	60Hz	14"	1366x768	IPS	Intel Celeron N4020	Entry-Level	1.1GHz	Intel UHD Graphics 600	Shared	4GB	LPDDR4	2400MHz	f	HP	64GB	Chrome OS	1.46	Mineral Silver	An affordable Chromebook perfect for web browsing and online learning.	https://ssl-product-images.www8-hp.com/digmedialib/prodimg/lowres/c08414508.png?impolicy=Png_Res	https://crdms.images.consumerreports.org/f_auto,w_600/prod/products/cr/models/406322-chromebooks-hp-chromebook-14a-na1083cl-10029593.png	2025-01-05 13:32:18.969837	2025-01-05 13:35:06.62391	14	2	2	Integrated	eMMC	Chromebook	1 year
-9f83097f-c758-4f47-a5f9-2edab1200720	Lenovo IdeaPad 1	299.99	60Hz	14"	1366x768	TN	AMD Athlon Silver 3050U	Entry-Level	2.3GHz	AMD Radeon Integrated Graphics	Shared	4GB	DDR4	2400MHz	f	Lenovo	128GB	Windows 11 Home in S Mode	1.4	Platinum Grey	A lightweight and affordable laptop designed for basic tasks like browsing and document editing.	https://p3-ofp.static.pub/fes/cms/2021/10/25/caqm6xeo57daq7nij26glvewaqvt02706786.png	https://psrefstuff.lenovo.com/syspool/Sys/Image/IdeaPad/IdeaPad_1_14ALC7/IdeaPad_1_14ALC7_CT1_01.png	2025-01-05 13:31:52.363233	2025-01-05 13:35:50.75956	14	2	2	Integrated	SSD	Budget Laptop	1 year
-9c426dbe-beb5-41ed-b7b5-ad72e910c4b3	ACER Nitro 5 AN515-57	1199.99	144 Hz	15.6 inches	1920 x 1080	IPS	 Intel® Core™ i5-11400H	Tiger Lake	4.5 GHz	NVIDIA GeForce RTX 3060	6 GB	16 GB	DDR5		f	Acer	512 GB	DOS	2.2	Black	Go full throttle with an 11th Gen Intel® Core™ i5 processor, GeForce RTX™ 30 Series GPUs1 and the high-speed IPS FHD display with 144Hz refresh and 3ms2 response. 	https://www.corpacer.com.my/wp-content/uploads/2019/12/Acer-Nitro-5-AN515-54-main.png	https://neostar.uz/upload/iblock/34e/qju6o2zj8ue3wlc0goxlpwlc5fbsd3cc.jpg	2025-01-05 14:44:48.35873	2025-01-05 14:44:48.358736	14	6	12	GDDR6	NVMe SSD	1x HDMI 3x USB 3.2 A Tüüp 1x USB 3.2 Gen 2 (Type-C) 	2 years
+COPY public.laptops (id, name, price, maker, screen_frequency, diagonal, resolution, screen_type, cpu_maker, cpu_model, cpu_class, cpu_frequency, cpu_max_frequency, cpu_cores, cpu_threads, gpu_maker, gpu_model, gpu_memory, gpu_memory_type, ram_size, ram_type, ram_frequency, storage_size, storage_type, extra_hardware, usb_a_2_0, usb_a_3_1, usb_type_c, vga_connection, hdmi_connection, dp_connection, ethernet, bluetooth, wireless, is_available, is_for_gaming, is_for_home_studying, is_for_office, warranty, installed_os, weight, width, height, depth, color, description, image, images_url, created_at, updated_at, user_id) FROM stdin;
+b98d98c0-3c26-421b-b9b0-8cddbe49d4ef	HP Omen Max 16	2499.99	HP	165	16	2560x1600	IPS	Intel	Intel Core Ultra 9	High Performance	3.6	5	8	16	NVIDIA	GeForce RTX 5080	16	GDDR6	32	DDR5	4800	1000	SSD	Advanced Cooling System	0	3	2	0	1	1	1	5.3	Wi-Fi 6E	t	t	f	f	24	Windows 11 Pro	2.5	357.9	23.5	245.1	Shadow Black	HP's most powerful gaming laptop yet, featuring next-gen NVIDIA GeForce RTX 5080 graphics and advanced cooling technology.	https://www.notebookcheck.net/fileadmin/Notebooks/News/_nc4/HP-Omen-Max-16-1.png	[{"url": "https://www.hp.com/wcsstore/hpusstore/Treatment/rc/FY25Q1-B64BNUA/OMEN-Max-16-Gaming-Laptop-with-NVIDIA-graphics.png"}, {"url": "https://www.hp.com/wcsstore/hpusstore/Treatment/images/b64bnua_c09093977_center_facing_573x430.png?impolicy=Png_Res"}]	2025-01-24 11:11:11.695192	2025-01-24 11:11:11.695197	1
+6bfbc7f0-be5d-4ea0-a3fa-29857d278c19	Lenovo Legion 5 Pro	1699	Lenovo	165	16	2560x1600	IPS	AMD	AMD Ryzen 7 5800H	Zen 3	3.2	4.4	8	16	NVIDIA	GeForce RTX 3070	8	GDDR6	16	DDR4	3200	1024	SSD	RGB Keyboard	2	3	2	0	1	1	1	5.2	Wi-Fi 6	t	t	f	t	2	Windows 11	2.45	35.6	2.5	25.2	Storm Grey	A high-performance gaming laptop with an immersive display.	https://techbuyz.co.ke/wp-content/uploads/2023/06/lenovo-legion-5pro.jpg	[{"url": "https://techbuyz.co.ke/wp-content/uploads/2023/06/lenovo-legion-5pro.jpg"}, {"url": "https://assets.mspimages.in/gear/wp-content/uploads/2021/11/Lenovo-Legion-5-Pro-Review.jpg"}]	2025-01-17 22:20:29.686443	2025-01-17 22:20:29.686449	1
+04222260-55e2-42fb-b6b9-6d74545cadff	HP Spectre x360	1499	HP	60	13.5	1920x1280	OLED	Intel	Intel Core i7-1255U	Alder Lake	1.7	4.7	10	12	Intel	Iris Xe	0	Shared	16	LPDDR4x	4266	1024	SSD	Convertible Display	0	2	2	0	1	0	0	5.2	Wi-Fi 6	t	f	t	t	1	Windows 11	1.3	30.5	1.7	21.5	Nightfall Black	A premium convertible laptop with stunning visuals and portability.	https://cdn.mos.cms.futurecdn.net/CsxfQ3MaDZ8A9AfqSiLf4.jpg	[{"url": "https://cdn.mos.cms.futurecdn.net/CsxfQ3MaDZ8A9AfqSiLf4.jpg"}, {"url": "https://i.pcmag.com/imagery/reviews/03jMpJIZFLZ0KJpnE2bBfjY-1.fit_scale.size_760x427.v1704305096.jpg"}]	2025-01-17 22:20:57.459123	2025-01-17 22:20:57.459129	1
+3ea9f06b-98f9-4c91-a7cb-444409a7b8f6	Lenovo ThinkBook Plus Gen 6	1999.99	Lenovo	60	13.3	2560x1600	OLED	Intel	Intel Core i7-13700H	High Performance	3.7	5	14	20	Intel	Integrated Iris Xe Graphics	0	\N	16	LPDDR5	5200	512	SSD	Rollable Display	0	2	2	0	1	0	0	5.2	Wi-Fi 6E	t	f	t	t	12	Windows 11 Home	1.2	298.4	15.9	209	Storm Grey	Innovative laptop featuring a rollable display for enhanced productivity and portability.	https://news.lenovo.com/wp-content/uploads/2025/01/01_ThinkBook_Plus_6_Display_Rolled_Up_vs_Rolled_Down-e1736184420427-1024x562.png	[{"url": "https://www.notebookcheck.net/fileadmin/_processed_/8/5/csm_07_ThinkBook_Plus_6_Birdseye_Keyboard_9d10434d3a.png"}]	2025-01-24 11:13:19.157966	2025-01-24 11:13:19.157974	1
+c97c03cc-8ead-438e-a62c-b5a6aa1fb496	MSI Titan 18 HX Dragon Edition Norse Myth	4999.99	MSI	120	18	3840x2160	Mini LED	Intel	Intel Core Ultra 9 285HX	High Performance	3.6	5	8	16	NVIDIA	GeForce RTX 5090	24	GDDR7	96	DDR5	5600	2000	SSD	Cherry Mechanical Keyboard, Six-Speaker Audio System	0	3	2	0	1	1	1	5.3	Wi-Fi 6E	t	t	f	f	24	Windows 11 Pro	3.6	400	25	300	Black with Norse Mythology Design	MSI's latest high-end gaming laptop featuring top-tier components and a unique Norse mythology-inspired design.	https://asset.msi.com/resize/image/global/product/product_17369342171d2037fd7ce4b551d5b3ce13e66dea4b.png62405b38c58fe0f07fcef2367d8a9ba1/600.png	[{"url": "https://storage-asset.msi.com/global/picture/image/feature/nb/2025_ARL/Titan-18-HX-Dargon-Edition-Norse-Myth/io-right-pd-v1.png"}, {"url": "https://asset.msi.com/resize/image/global/product/product_17369342152bae1ed947916e5ba8d6a36505251a93.png62405b38c58fe0f07fcef2367d8a9ba1/600.png"}]	2025-01-24 11:14:40.650285	2025-01-24 11:14:40.65029	1
+7c09ba09-565c-4928-b060-88864ec56886	UltraBook X15 INTEL	1200	Acer	120	15.6	1920x1080	IPS	Intel	Intel Core i7-1260P	Mobile	2.5	4.5	12	16	NVIDIA	RTX 3050 Ti	4	GDDR6	16	DDR4	3200	512	SSD	Fingerprint reader	1	2	2	0	1	1	1	5.1	Wi-Fi 6	f	t	t	t	24	Windows 11 Home	1.8	357.6	17.9	240.5	Silver	The UltraBook X15 is a lightweight and powerful laptop designed for gaming, studying, and office work. Featuring a high-refresh-rate display and cutting-edge hardware, it's perfect for all-around performance.	https://cdn.mos.cms.futurecdn.net/SZgb2RdRBoJp7eN6A6CEM.png	[{"url": "https://dlcdnwebimgs.asus.com/gain/2822d7cb-0e0b-4ce3-9836-cb363ad45908/"}]	2025-01-17 20:15:29.611634	2025-01-19 20:18:29.516314	1
+887cb678-cda9-4e8b-b1a3-94a634359e33	Dell Inspiron 14 Plus	999.99	Dell	60	14	1920x1200	IPS	Intel	Intel Core i7-12700H	High Performance	3.5	4.7	14	20	NVIDIA	GeForce RTX 3050	4	GDDR6	16	DDR4	3200	512	SSD	Fingerprint Reader	0	2	1	0	1	0	1	5.2	Wi-Fi 6	t	t	t	t	12	Windows 11 Home	1.5	321.3	18.9	212.8	Platinum Silver	The Dell Inspiron 14 Plus offers strong performance, exceptional battery life, and a vibrant display.	https://i.dell.com/is/image/DellContent/content/dam/ss2/product-images/dell-client-products/notebooks/inspiron-notebooks/7441/media-gallery/touch/notebook-inspiron-7441-t-ice-blue-gallery-1.psd?fmt=png-alpha&pscan=auto&scl=1&hei=402&wid=586&qlt=100,1&resMode=sharp2&size=586,402&chrss=full	[{"url": "https://i.dell.com/is/image/DellContent/content/dam/ss2/product-images/dell-client-products/notebooks/inspiron-notebooks/14-7440/pdp/laptop-inspiron-14-7440-plus-intel-pdp-hero.psd?qlt=95&fit=constrain,1&hei=400&wid=570&fmt=png-alpha"}]	2025-01-24 11:08:52.859682	2025-01-24 11:08:52.859687	1
+12225de4-b23f-4633-b725-cab540127e95	MacBook Air M3	1199.99	Apple	60	13.6	2560x1664	Retina	Apple	Apple M3	High Performance	3.2	3.8	8	8	Apple	Integrated 8-core GPU	0	\N	8	Unified Memory	0	256	SSD	None	0	0	2	0	0	0	0	5.0	Wi-Fi 6	t	f	t	t	12	macOS	1.24	304.1	11.3	212.4	Space Gray	The MacBook Air M3 offers a mix of power, portability, a bright display, and over 15 hours of battery life.	https://www.en.ideal.ee/media/wysiwyg/ideal_m2/product_pages/macbook_air_m3/hero_small_2x.png?1708555710106	[{"url": "https://cdsassets.apple.com/live/7WUAS350/images/tech-specs/mba_13_m3_2024_hero.png"}, {"url": "https://www.en.ideal.ee/media/wysiwyg/ideal_m2/product_pages/macbook_air_m3/size_small_2x.png?1708555710109"}]	2025-01-24 11:09:53.750548	2025-01-24 11:09:53.750553	1
+4c03676f-bd78-4bb1-835e-649ec75d71b6	HP Omen Max 16	2499.99	HP	165	16	2560x1600	IPS	Intel	Intel Core Ultra 9	High Performance	3.6	5	8	16	NVIDIA	GeForce RTX 5080	16	GDDR6	32	DDR5	4800	1000	SSD	Advanced Cooling System	0	3	2	0	1	1	1	5.3	Wi-Fi 6E	t	t	f	f	24	Windows 11 Pro	2.5	357.9	23.5	245.1	Shadow Black	HP's most powerful gaming laptop yet, featuring next-gen NVIDIA GeForce RTX 5080 graphics and advanced cooling technology.	https://www.notebookcheck.net/fileadmin/Notebooks/News/_nc4/HP-Omen-Max-16-1.png	[{"url": "https://www.hp.com/wcsstore/hpusstore/Treatment/rc/FY25Q1-B64BNUA/OMEN-Max-16-Gaming-Laptop-with-NVIDIA-graphics.png"}, {"url": "https://www.hp.com/wcsstore/hpusstore/Treatment/images/b64bnua_c09093977_center_facing_573x430.png?impolicy=Png_Res"}]	2025-01-24 11:11:10.196545	2025-01-24 11:11:10.19655	1
+dc1df51b-d606-4fc3-b781-a8383c80b714	ASUS ROG Strix Scar 18	2599.99	ASUS	240	18	2560x1600	Mini LED	Intel	Intel Core Ultra 9 275HX	High Performance	3.5	5	8	16	NVIDIA	GeForce RTX 5090	16	GDDR6	64	DDR5	5600	2000	SSD	AniMe Matrix LED Display on Lid	0	2	2	0	1	1	1	5.3	Wi-Fi 6E	t	t	f	f	24	Windows 11 Pro	3.1	399	23	294	Eclipse Gray	ASUS's latest ROG Strix Scar series gaming laptop with high-end specs and customizable RGB lighting.	https://dlcdnwebimgs.asus.com/gain/2BF5F03B-E120-4523-BBFF-AA8939E19B64	[{"url": "https://dlcdnwebimgs.asus.com/files/media/621ECFA4-AFC8-4B9C-AC50-C7D8A292D62D/v1/img/gaming/gaming-pd.png"}]	2025-01-24 11:15:28.969329	2025-01-24 11:15:28.969335	1
 \.
 
 
 --
+-- TOC entry 3396 (class 0 OID 16783)
+-- Dependencies: 220
+-- Data for Name: monitors; Type: TABLE DATA; Schema: public; Owner: main
+--
+
+COPY public.monitors (id, name, maker, price, diagonal, resolution, panel_type, refresh_rate, image, is_available, images_url, description, brightness, response_time, contrast_ratio, aspect_ratio, color_gamut, hdmi_connection, dp_connection, jack_connection, vga_connection, usb_2, usb_type_c, usb_type_c_thunderbolt, is_curved, vesa_mounting, has_speaker, pivot, is_adjustable_height, has_touchscreen, accessories, energy_class, width, height, depth, weight, warranty, created_at, updated_at, user_id) FROM stdin;
+bd2e31e5-6417-4959-8faf-196ae0ff76b8	Dell UltraSharp U2723QE	Dell	649.99	27	3840x2160	IPS	60	https://cdn.cs.1worldsync.com/syndication/mediaserverredirect/e6b58295605132c59c6286cc529a3144/original.png	t	[{"url": "https://cdn.cs.1worldsync.com/syndication/mediaserverredirect/aa8fde5cf790c13dbd3e4d6cbb05ea86/original.png"}, {"url": "https://www.atreid.com/miniatures/im/o/d/dell-u273qe-main-650-400.png"}]	27-inch 4K UHD monitor with outstanding color accuracy and a wide color gamut, suitable for professionals.	400	5	1000:1	16:9	99	1	1	1	0	0	1	0	f	100x100	f	t	t	f	Power cable, DisplayPort cable, USB-C cable	Double_A	611.3	535.7	185	8.2	36	2025-01-19 18:42:12.517642	2025-01-19 18:42:12.517646	1
+e6ec7676-aba6-4536-b0b6-d42482a19869	Samsung Odyssey Neo G8	Samsung	1499.99	32	3840x2160	VA	240	https://images.samsung.com/is/image/samsung/p6pim/in/ls32bg850nwxxl/gallery/in-odyssey-neo-g8-g85nb-ls32bg850nwxxl-533187982?$684_547_PNG$	t	[{"url": "https://www.heathcotes.co.nz/spree/products/56459/large/LS32BG852NEXXY_-_Samsung_32_Odyssey_Neo_G8_UHD_Gaming_Quantum_Mini-LED_Monitor_%283%29.png?1666837507"}]	World’s first 4K 240Hz gaming monitor with Quantum HDR2000 and a 1000R curvature for an immersive experience.	2000	1	1000000:1	16:9	95	2	1	0	0	2	0	0	t	100x100	t	f	t	f	HDMI cable, DP cable, Power adapter	Single_A	710.1	605.9	311.1	9.5	24	2025-01-19 18:43:18.988306	2025-01-19 18:43:18.988312	1
+2692a6e6-2020-4111-b571-f68e4589b7b9	LG UltraFine Ergo 32UN880-B	LG	699.99	32	3840x2160	IPS	60	https://res-2.cloudinary.com/grover/image/upload/v1682338325/xjcbjxjmmhuhtqqji3yz.png	t	[{"url": "https://res-1.cloudinary.com/grover/image/upload/v1682338340/znafy13tg9x2ivlykisc.png"}, {"url": "https://vividgold.co.ke/cdn/shop/files/LGUN880_600x600.png?v=1723817174"}]	4K UHD monitor with ergonomic arm stand and HDR10 support, ideal for creative professionals.	350	5	1000:1	16:9	98	2	1	1	0	0	1	0	f	100x100	t	t	t	f	Ergonomic arm, Power cable, HDMI cable, USB-C cable	Single_A	714.3	605.7	231	10	36	2025-01-19 18:44:19.708529	2025-01-19 18:44:19.708536	1
+8b2ca69c-8797-4f7f-a28a-05f39c966f7a	ASUS ProArt Display PA32UCX	ASUS	2999.99	32	3840x2160	IPS	60	https://dlcdnimgs.asus.com/websites/global/products/5njbd2tzgb0fr23e/img/smarthdr-4.png	t	[{"url": "https://www.asus.com/media/global/products/OJHWeNhkQf014c7X/P_setting_xxx_0_90_end_692.png"}, {"url": "https://img.myshopline.com/image/store/1699507075863/fwebp-24.png?w=800&h=800"}]	Professional 4K HDR monitor with 97% DCI-P3 coverage and Dolby Vision for content creators.	1000	5	1000:1	16:9	97	2	1	1	0	2	1	1	f	100x100	f	t	t	f	Power cable, HDMI cable, Thunderbolt cable	A	728	630	245	13	36	2025-01-19 19:01:55.75332	2025-01-19 19:01:55.753325	1
+2579c25d-e295-4bf7-a34c-d2b88ce76ec3	BenQ EX3501R	BenQ	899.99	35	3440x1440	VA	100	https://media2.bizserver.eu/6124/monitor-benq-led-ex3501r-35-cali.jpg	t	[{"url": "https://www.techspot.com/images/products/2017/monitors/org/2018-02-09-product.png"}, {"url": "https://101-multimedia.com/4908-home_default/benq-35-ex3501r-1800r-curvature-100hz.jpg"}]	Ultra-wide curved monitor with HDR support and USB-C connectivity, perfect for productivity and entertainment.	300	4	2500:1	21:9	95	2	1	1	0	2	1	0	t	100x100	f	f	t	f	HDMI cable, DP cable, USB-C cable	Single_A	833	574	223	11.2	24	2025-01-19 19:03:37.988294	2025-01-19 19:03:37.988298	1
+86730958-3d52-4560-be5c-ac4df4695e55	Acer Predator X34 GS	Acer	1399.99	34	3440x1440	IPS	180	https://www.acervietnam.com.vn/wp-content/uploads/2022/02/Predator-X34-GS_3-2.png	t	[{"url": "https://techent.tv/wp-content/uploads/2024/06/PREDATOR-X34-X5-01.png"}, {"url": "https://www.tech-critter.com/wp-content/uploads/2020/10/PREDATOR-X34-GS-Standard_01.png"}, {"url": "https://i0.wp.com/www.c2ocorp.com/wp-content/uploads/2021/10/Predator_Monitor_X-series_X34_GS_gallery_07.png?fit=480%2C380&ssl=1"}]	High-performance curved gaming monitor with NVIDIA G-Sync and wide color gamut.	400	1	1000:1	21:9	98	2	1	1	0	4	0	0	t	100x100	t	f	t	f	Power cable, DP cable, HDMI cable	Single_A	817	601	309	9.9	24	2025-01-19 19:05:59.560436	2025-01-19 19:05:59.560443	1
+e3677274-7197-42ce-bd07-64866e4e8e14	ViewSonic Elite XG270QG	ViewSonic	749.99	27	2560x1440	IPS	165	https://www.viewsonic.com/vsAssetFile/ph/img/resize/product-rc/_lcd_display_%28new%29/XG270QG/kv.webp	t	[{"url": "https://www.viewsonic.com/vsAssetFile/ph/img/resize/product-rc/_lcd_display_%28new%29/XG270QG/connector.webp"}, {"url": "https://cdn.shopify.com/s/files/1/0513/8205/9159/files/monitor3_png_480x480.webp?v=1671516958"}]	Gaming monitor with NVIDIA G-Sync, 98% DCI-P3, and vibrant visuals for smooth gameplay.	350	1	1000:1	16:9	98	1	1	1	0	3	0	0	f	100x100	t	t	t	f	HDMI cable, DP cable, Power cable	A	612	540	265	7	36	2025-01-19 19:07:17.225355	2025-01-19 19:07:17.225361	1
+2ac276a2-7c24-48e1-8c51-2e1dd2bda6d2	LG 49WL95C-W	LG	1499.99	49	5120x1440	IPS	60	https://avatars.mds.yandex.net/get-mpic/6583032/img_id7754121235622529923.png/orig	t	[{"url": "https://avatars.mds.yandex.net/get-mpic/6321906/img_id5963107112556988925.png/orig"}]	Ultra-wide dual QHD monitor for multitasking and professional workflows, with HDR10 and USB-C.	350	5	1000:1	32:9	99	2	1	1	0	2	1	0	f	100x100	t	f	t	f	Power cable, HDMI cable, USB-C cable	Double_A	1215	365	230	14.9	24	2025-01-19 19:08:32.636769	2025-01-19 19:08:32.636776	1
+\.
+
+
+--
+-- TOC entry 3395 (class 0 OID 16734)
+-- Dependencies: 219
 -- Data for Name: users; Type: TABLE DATA; Schema: public; Owner: main
 --
 
 COPY public.users (username, first_name, last_name, created_at, updated_at, phone_number, id, email, hashed_password, is_active, is_superuser, is_verified) FROM stdin;
-FastAPISuperuser	Fakename	Fakesurname	2025-01-03 15:21:26.948023	2025-01-05 17:40:58.573458	+380992921960	14	admin@admin.com	$argon2id$v=19$m=65536,t=3,p=4$7e6vzGw0B6PVCXtY0ZxAlA$wK6L/srxxhoman0YucxhZ7THqy7XYN8Ul3U87G+na6g	t	t	t
-Alex1488	Alex1488	Alex1488	2025-01-03 17:21:51.296447	2025-01-03 17:22:50.737017	+3725467453	16	Alex1488@example.com	$argon2id$v=19$m=65536,t=3,p=4$+JtU+HhhimOTVh/Kt1Lz5w$NiaMCdmc5jqjG1OsGlAdlGdOvYWEOkeZdpbqcAlRI38	t	f	t
-FastAdmin1	FastAdmin1	FastAdmin1	2025-01-02 06:02:24.520986	2025-01-05 02:23:33.553426	string	12	AlexAlex@example.com	$argon2id$v=19$m=65536,t=3,p=4$J9laymon0YP/fikL65QNLQ$oNLEBr9AMKU5RQrE9Zks1EQOA05SSW//BWSaZfpRXlA	t	f	t
+FastAPIAdmin	Admin	Admin	2025-01-17 22:12:58.209826	2025-01-17 22:12:58.209832	+380992921960	1	admin@admin.com	$argon2id$v=19$m=65536,t=3,p=4$YC6C+BpK9R/PKyIBS0NmgQ$W9lsolcv4N4tTk5HDnQ5qkRzMpFW/6puvCL1OtAqQyY	t	t	t
 \.
 
 
 --
+-- TOC entry 3405 (class 0 OID 0)
+-- Dependencies: 218
 -- Name: users_id_seq; Type: SEQUENCE SET; Schema: public; Owner: main
 --
 
-SELECT pg_catalog.setval('public.users_id_seq', 22, true);
+SELECT pg_catalog.setval('public.users_id_seq', 2, true);
 
 
 --
+-- TOC entry 3231 (class 2606 OID 16720)
 -- Name: alembic_version alembic_version_pkc; Type: CONSTRAINT; Schema: public; Owner: main
 --
 
@@ -201,6 +394,16 @@ ALTER TABLE ONLY public.alembic_version
 
 
 --
+-- TOC entry 3241 (class 2606 OID 16802)
+-- Name: desktop_pcs pk_desktop_pcs; Type: CONSTRAINT; Schema: public; Owner: main
+--
+
+ALTER TABLE ONLY public.desktop_pcs
+    ADD CONSTRAINT pk_desktop_pcs PRIMARY KEY (id);
+
+
+--
+-- TOC entry 3244 (class 2606 OID 16816)
 -- Name: laptops pk_laptops; Type: CONSTRAINT; Schema: public; Owner: main
 --
 
@@ -209,6 +412,16 @@ ALTER TABLE ONLY public.laptops
 
 
 --
+-- TOC entry 3238 (class 2606 OID 16789)
+-- Name: monitors pk_monitors; Type: CONSTRAINT; Schema: public; Owner: main
+--
+
+ALTER TABLE ONLY public.monitors
+    ADD CONSTRAINT pk_monitors PRIMARY KEY (id);
+
+
+--
+-- TOC entry 3235 (class 2606 OID 16741)
 -- Name: users pk_users; Type: CONSTRAINT; Schema: public; Owner: main
 --
 
@@ -217,6 +430,15 @@ ALTER TABLE ONLY public.users
 
 
 --
+-- TOC entry 3239 (class 1259 OID 16808)
+-- Name: ix_desktop_pcs_created_at; Type: INDEX; Schema: public; Owner: main
+--
+
+CREATE INDEX ix_desktop_pcs_created_at ON public.desktop_pcs USING btree (created_at);
+
+
+--
+-- TOC entry 3242 (class 1259 OID 16822)
 -- Name: ix_laptops_created_at; Type: INDEX; Schema: public; Owner: main
 --
 
@@ -224,6 +446,15 @@ CREATE INDEX ix_laptops_created_at ON public.laptops USING btree (created_at);
 
 
 --
+-- TOC entry 3236 (class 1259 OID 16795)
+-- Name: ix_monitors_created_at; Type: INDEX; Schema: public; Owner: main
+--
+
+CREATE INDEX ix_monitors_created_at ON public.monitors USING btree (created_at);
+
+
+--
+-- TOC entry 3232 (class 1259 OID 16742)
 -- Name: ix_users_email; Type: INDEX; Schema: public; Owner: main
 --
 
@@ -231,6 +462,7 @@ CREATE UNIQUE INDEX ix_users_email ON public.users USING btree (email);
 
 
 --
+-- TOC entry 3233 (class 1259 OID 16743)
 -- Name: ix_users_username; Type: INDEX; Schema: public; Owner: main
 --
 
@@ -238,12 +470,33 @@ CREATE UNIQUE INDEX ix_users_username ON public.users USING btree (username);
 
 
 --
+-- TOC entry 3246 (class 2606 OID 16803)
+-- Name: desktop_pcs fk_desktop_pcs_user_id_users; Type: FK CONSTRAINT; Schema: public; Owner: main
+--
+
+ALTER TABLE ONLY public.desktop_pcs
+    ADD CONSTRAINT fk_desktop_pcs_user_id_users FOREIGN KEY (user_id) REFERENCES public.users(id);
+
+
+--
+-- TOC entry 3247 (class 2606 OID 16817)
 -- Name: laptops fk_laptops_user_id_users; Type: FK CONSTRAINT; Schema: public; Owner: main
 --
 
 ALTER TABLE ONLY public.laptops
     ADD CONSTRAINT fk_laptops_user_id_users FOREIGN KEY (user_id) REFERENCES public.users(id);
 
+
+--
+-- TOC entry 3245 (class 2606 OID 16790)
+-- Name: monitors fk_monitors_user_id_users; Type: FK CONSTRAINT; Schema: public; Owner: main
+--
+
+ALTER TABLE ONLY public.monitors
+    ADD CONSTRAINT fk_monitors_user_id_users FOREIGN KEY (user_id) REFERENCES public.users(id);
+
+
+-- Completed on 2025-01-24 12:00:22 UTC
 
 --
 -- PostgreSQL database dump complete

@@ -1,11 +1,15 @@
 from typing import Annotated
-from uuid import UUID
-
 from fastapi import Depends, Path, HTTPException
-from sqlalchemy.ext.asyncio import AsyncSession
 
 from core.models import Laptop, db_helper
-from crud import laptops as crud_laptops
+from crud.items_crud import laptops as crud_laptops
+
+
+from uuid import UUID
+
+from sqlalchemy.ext.asyncio import AsyncSession
+
+from crud.items_crud.typevars import SQLModel
 
 
 async def get_laptops_by_uuid(
@@ -25,3 +29,21 @@ async def get_laptops_by_uuid(
         status_code=404,
         detail=f"Laptop {laptop_id} not found",
     )
+
+
+# async def crud_item_by_uuid(
+#     item_uuid: UUID,
+#     session: AsyncSession,
+#     model: SQLModel,
+# ) -> SQLModel | None:
+#     item = await crud.get_item_by_uuid(
+#         session=session,
+#         item_uuid=item_uuid,
+#         model=model,
+#     )
+#     if item is not None:
+#         return item
+#     raise HTTPException(
+#         status_code=404,
+#         detail=f"Item:{model.__name__} UUID:{item_uuid} not found",
+#     )

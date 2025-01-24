@@ -1,27 +1,24 @@
 from pydantic import EmailStr
 from service.transport import email_sender, EmailSender
 import os
+from core.config import settings
 
 
-def send_verification_email(
-    username: str,
-    token: str,
-    recipient_email: EmailStr,
-    transport: "EmailSender",
+async def send_after_register_email(
+        username: str,
+        recipient_email: EmailStr,
+        transport: "EmailSender",
 ) -> None:
-    subject = "Account verification"
-    confirm_url = f"http://example.com/api/v1/auth/verify?token={token}"
-
+    subject = "Account Registered"
     context = {
         "username": username,
-        "token": token,
-        "confirm_url": confirm_url,
+        "redirect_url": settings.domain.domain_url,
     }
 
     template_path = os.path.join(
         os.getcwd(),
         "templates",
-        "index.html",
+        "after_register.html",
     )
     html_content = email_sender.load_and_render_template(
         template_path,
@@ -29,9 +26,9 @@ def send_verification_email(
     )
 
     msg = transport.create_message(
-        to_email=recipient_email,
+        to_email=str(recipient_email),
         subject=subject,
         html_content=html_content,
     )
 
-    transport.send(msg)
+    await transport.send(msg)

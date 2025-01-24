@@ -1,4 +1,4 @@
-# Base-app FastAPI Application
+# TechHaven FastAPI Application
 
 ## This project represents a store for selling laptops(for now) using [FastAPI](https://fastapi.tiangolo.com/), a modern, high-performance web framework for building APIs with Python.
 

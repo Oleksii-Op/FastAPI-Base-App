@@ -1,7 +1,10 @@
-from pydantic import EmailStr, BaseModel
+from pydantic import BaseModel, EmailStr
 
 
-class EmailVerify(BaseModel):
+class EmailUsernameModel(BaseModel):
     email: EmailStr
-    token: str
     username: str
+
+
+class ResetPassModel(EmailUsernameModel):
+    token: str

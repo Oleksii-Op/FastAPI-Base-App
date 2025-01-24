@@ -2,7 +2,7 @@ import logging
 
 
 def configure_logger(
-    level=logging.INFO,
+    level: int=logging.INFO,
 ):
     logging.basicConfig(
         level=level,
