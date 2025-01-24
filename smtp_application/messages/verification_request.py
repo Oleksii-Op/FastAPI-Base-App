@@ -3,7 +3,7 @@ from service.transport import email_sender, EmailSender
 import os
 
 
-def send_verification_email(
+async def send_verification_email(
         username: str,
         recipient_email: EmailStr,
         transport: "EmailSender",
@@ -30,4 +30,4 @@ def send_verification_email(
         html_content=html_content,
     )
 
-    transport.send(msg)
+    await transport.send(msg)

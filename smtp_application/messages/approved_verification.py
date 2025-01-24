@@ -4,7 +4,7 @@ import os
 from core.config import settings
 
 
-def send_approved_verification_email(
+async def send_approved_verification_email(
         username: str,
         recipient_email: EmailStr,
         transport: "EmailSender",
@@ -31,4 +31,4 @@ def send_approved_verification_email(
         html_content=html_content,
     )
 
-    transport.send(msg)
+    await transport.send(msg)

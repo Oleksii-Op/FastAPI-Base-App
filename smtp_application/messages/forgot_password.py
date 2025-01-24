@@ -4,7 +4,7 @@ import os
 from core.config import settings
 
 
-def send_forgot_password_email(
+async def send_forgot_password_email(
     username: str,
     token: str,
     recipient_email: EmailStr,
@@ -33,4 +33,4 @@ def send_forgot_password_email(
         html_content=html_content,
     )
 
-    transport.send(msg)
+    await transport.send(msg)

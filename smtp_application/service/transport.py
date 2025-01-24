@@ -1,4 +1,4 @@
-import smtplib
+import aiosmtplib
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from jinja2 import Template
@@ -58,22 +58,23 @@ class EmailSender:
 
         return msg
 
-    def send(self, msg: MIMEMultipart) -> None:
+    async def send(self, msg: MIMEMultipart) -> None:
         try:
-            with smtplib.SMTP(self.smtp_host, self.smtp_port) as server:
-                server.ehlo()
-                server.starttls()
-                server.login(
+            # TLS already used
+            async with aiosmtplib.SMTP(hostname=self.smtp_host, port=self.smtp_port) as server:
+                await server.ehlo()
+                await server.login(
                     self.email,
                     self.password,
                 )
-                server.sendmail(
+                await server.sendmail(
                     msg["From"],
                     msg["To"],
                     msg.as_string(),
                 )
-                # logger.info("Successfully sent the mail to %s", msg["To"])
-        except smtplib.SMTPException as exc:
+                logger.info("Successfully sent the mail to %s", msg["To"],)
+
+        except aiosmtplib.SMTPException as exc:
             logger.error(
                 "Failed to send mail due to SMTP error: %s",
                 exc,

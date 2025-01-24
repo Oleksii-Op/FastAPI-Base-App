@@ -5,7 +5,7 @@ from service.transport import email_sender, EmailSender
 import os
 
 
-def send_password_reset(
+async def send_password_reset(
     username: str,
     recipient_email: EmailStr,
     transport: "EmailSender",
@@ -33,4 +33,4 @@ def send_password_reset(
         html_content=html_content,
     )
 
-    transport.send(msg)
+    await transport.send(msg)

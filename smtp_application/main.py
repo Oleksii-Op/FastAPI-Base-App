@@ -21,10 +21,6 @@ async def check_ip_middleware(
 ) -> JSONResponse:
     try:
         client_ip = request.client.host
-        logging.info(f"Request URL: {request.url}")
-        logging.info(f"Request Method: {request.method}")
-        logging.info(f"Client IP: {client_ip}")
-
         if request.url.path == "/send/verifytoken":
             if client_ip != settings.backend_allowed.ip_address:
                 logging.warning(f"Forbidden access attempt from IP: {client_ip}")

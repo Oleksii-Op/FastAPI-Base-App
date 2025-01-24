@@ -24,7 +24,7 @@ logger = logging.getLogger(__name__)
 async def send_after_registration(
     user: EmailUsernameModel,
 ):
-    send_after_register_email(
+    await send_after_register_email(
         username=user.username,
         recipient_email=user.email,
         transport=email_sender,
@@ -44,7 +44,7 @@ async def send_after_registration(
 async def send_verification_request(
     user: EmailUsernameModel,
 ):
-    send_verification_email(
+    await send_verification_email(
         username=user.username,
         recipient_email=user.email,
         transport=email_sender,
@@ -64,7 +64,7 @@ async def send_verification_request(
 async def send_verification_approved(
     user: EmailUsernameModel,
 ):
-    send_approved_verification_email(
+    await send_approved_verification_email(
         username=user.username,
         recipient_email=user.email,
         transport=email_sender,
@@ -84,7 +84,7 @@ async def send_verification_approved(
 async def send_forgot_password(
     user: ResetPassModel,
 ):
-    send_forgot_password_email(
+    await send_forgot_password_email(
         username=user.username,
         recipient_email=user.email,
         token=user.token,
@@ -105,7 +105,7 @@ async def send_forgot_password(
 async def send_after_reset_password(
     user: EmailUsernameModel,
 ):
-    send_password_reset(
+    await send_password_reset(
         username=user.username,
         recipient_email=user.email,
         transport=email_sender,
