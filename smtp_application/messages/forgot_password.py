@@ -13,7 +13,7 @@ async def send_forgot_password_email(
     subject = "Reset Password | Forgot Password"
     context = {
         "username": username,
-        "redirect_url": settings.domain.forgot_password_page_url,
+        "redirect_url": settings.domain.domain_url,
         "token": token,
     }
 

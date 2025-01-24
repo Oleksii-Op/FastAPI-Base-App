@@ -11,8 +11,8 @@ class RunConfig(BaseModel):
 
 
 class SMTPConfig(BaseModel):
-    host: str = "smtp.gmail.com"
-    port: int = 587  # TLS
+    host: str
+    port: int
 
 
 class Credentials(BaseModel):
@@ -26,7 +26,6 @@ class AllowedAddresses(BaseModel):
 
 class SiteDomain(BaseModel):
     domain_url: str
-    forgot_password_page_url: str
 
 
 class Settings(BaseSettings):
@@ -38,7 +37,7 @@ class Settings(BaseSettings):
         env_file_encoding="utf-8",
     )
     run: RunConfig = RunConfig()
-    smtp: SMTPConfig = SMTPConfig()
+    smtp: SMTPConfig
     credentials: Credentials
     backend_allowed: AllowedAddresses
     domain: SiteDomain
