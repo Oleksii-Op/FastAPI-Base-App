@@ -9,6 +9,7 @@ ENV POETRY_VERSION=1.8.3
 ENV POETRY_CACHE_DIR=/app/.cache
 
 RUN apt-get update -y \
+    && apt install wget -y \
     && pip install poetry==${POETRY_VERSION}
 
 WORKDIR /app/
