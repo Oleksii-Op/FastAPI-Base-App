@@ -55,8 +55,19 @@ git clone https://github.com/Oleksii-Op/FastAPI-Base-App.git
 python3 -c 'import secrets; print(secrets.token_hex())'
 ```
 #### 1. Run `init_project.sh` script to set up some credentials before start up
+#### 2. Create .env files for frontend and backend
+```shell
+echo "VITE_API_BASE_URL=" > /frontend/.env
+# Copy .env.template into .env file and edit variables
+cp /fastapi-application/.env.template /fastapi-application/.env
+```
+> [!NOTE] 
+> check_env_file.py won't start the backend if no .env file found in /fastapi-application directory!
 
-#### 2. Once Postgres password and SMTP Server credentials have been set - execute
+> [!NOTE]
+> Frontend will use broken url if no .env file exists!
+
+#### 3. Once Postgres password and SMTP Server credentials have been set - execute
 ```shell
 docker compose up -d --build
 ```
@@ -72,6 +83,16 @@ docker compose ps
 * Backend API: http://localhost:8000/docs (Check that ports are opened in docker-compose.yml file)
 * Metrics/Logs/Monitoring: https://localhost:3000/ to access Grafana (username: admin , password: pass@123)
 * PostgreSQL Data: http://localhost:8020/ to access PGAdmin4 (email: admin@example.com , password: test_admin)
+
+#### 5. Setting up some data to Postgres
+```shell
+# Drop the initial database
+docker compose exec -it pg psql -d postgres -U main -c "DROP DATABASE IF EXISTS shop;"
+# Create an empty database
+docker compose exec -it pg psql -d postgres -U main -c "CREATE DATABASE shop;"
+# Dump the data into shop
+docker compose exec -T pg psql -U main -d shop < {Project_dir}/shop.sql
+```
 
 #### You may use `index_page_loader.sh` to simulate some requests to https://localhost/index
 #### Metrics in Grafafa FastAPI Dashboard will grow
