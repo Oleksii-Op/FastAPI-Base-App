@@ -79,7 +79,7 @@ async def delete_item(
     model_instance: type["SQLModel"],
 ) -> None:
     await session.delete(model_instance)
-    await session.rollback()
+    await session.commit()
 
 
 async def update_item(
