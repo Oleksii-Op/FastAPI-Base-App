@@ -24,3 +24,19 @@ providers:
     editable: true
     options:
       path: /etc/grafana/provisioning/dashboards/cadvisor
+
+  - name: 'Postgres Exporter'
+    folder: 'Services'
+    type: file
+    disableDeletion: false
+    editable: true
+    options:
+      path: /etc/grafana/provisioning/dashboards/postgres
+
+  - name: 'Redis Exporter'
+    folder: 'Services'
+    type: file
+    disableDeletion: false
+    editable: true
+    options:
+      path: /etc/grafana/provisioning/dashboards/redis
