@@ -12,7 +12,7 @@
 * Reverse Proxy: Utilizes [Nginx](https://nginx.org/) as a reverse proxy server to manage client requests and improve security.
 * Real-time Monitoring: Includes [Prometheus](https://prometheus.io/), [CAdvisor](https://github.com/google/cadvisor) and [Grafana](https://grafana.com/) for monitoring application performance and health metrics.
 * Application Log Storage: Uses [Clickhouse](https://clickhouse.com/) database for local log's storage and [BetterStack](https://betterstack.com/community/guides/logging/docker-logs/) for remote backup utilizing [Vector](https://vector.dev/) as the log's collector.
-
+* Databases Performance Metrics: Includes [Redis](https://github.com/oliver006/redis_exporter) and [PostgreSQL](https://github.com/prometheus-community/postgres_exporter) Prometheus Exporters to provide real-time monitoring and visualizing metrics in Grafana. 
 
 
 ### Main Page (Frontend)
@@ -31,6 +31,11 @@
 ![images/endpoints_metrics.png](images/endpoints_metrics.png)
 ### Prometheus Host Metrics
 ![images/host_metrics.png](/images/host_metrics.png)
+### Postgres Cluster Metrics
+![images/postgres_metrics.png](/images/postgres_metrics.png)
+### AlertManager Rules for Redis and Postgres
+![images/alertrules_postgres.png](/images/alertrules_postgres.png)
+![images/alertrules_redis.png](/images/alertrules_redis.png)
 ### CAdvisor Containers Metrics
 ![images/cadvisor_metrics.png](images/cadvisor_metrics.png)
 ### Containers logs from Clickhouse in Grafana
