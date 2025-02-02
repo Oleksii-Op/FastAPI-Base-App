@@ -29,6 +29,19 @@ services:
       common-network:
         ipv4_address: 10.10.101.14
 
+  postgres_exporter:
+    image: quay.io/prometheuscommunity/postgres-exporter
+    container_name: pg_exporter
+    ports:
+      - "9187"
+    environment:
+      DATA_SOURCE_URI: "pg:5432/shop?sslmode=disable"
+      DATA_SOURCE_USER: main
+      DATA_SOURCE_PASS: supersecret
+    networks:
+      common-network:
+        ipv4_address: 10.10.101.16
+
   redis:
     image: redis:7.4.1-bookworm
     container_name: redis
@@ -40,6 +53,18 @@ services:
     networks:
       common-network:
         ipv4_address: 10.10.101.13
+
+  redis_exporter:
+    image: quay.io/oliver006/redis_exporter
+    container_name: redis_exporter
+    environment:
+      REDIS_ADDR: redis://redis:6379
+    ports:
+      - "9121"
+    networks:
+      common-network:
+        ipv4_address: 10.10.101.17
+
 
   #Backend proxy
   nginx:
@@ -166,12 +191,32 @@ services:
       vector:
         condition: service_started
     ports:
-      - "9090"
+      - "9090:9090"
+    entrypoint: [ "/bin/prometheus" ]
+    command:
+      - "--config.file=/etc/prometheus/prometheus.yml"
+      - "--storage.tsdb.path=/prometheus"
+      - "--web.console.libraries=/usr/share/prometheus/console_libraries"
+      - "--web.console.templates=/usr/share/prometheus/consoles"
+      - "--storage.tsdb.retention.time=15d"
     volumes:
       - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
+      - ./prometheus/alertrules.postgres.yml:/etc/prometheus/alertrules.postgres.yml
+      - ./prometheus/alertrules.redis.yml:/etc/prometheus/alertrules.redis.yml
     networks:
       common-network:
         ipv4_address: 10.10.101.8
+
+  alertmanager:
+    image: prom/alertmanager:v0.27.0
+    restart: unless-stopped
+    volumes:
+      - ./alertmanager/alertmanager.yml:/etc/alertmanager/alertmanager.yml
+    ports:
+      - "9093:9093"
+    networks:
+      common-network:
+        ipv4_address: 10.10.101.15
 
   grafana:
     image: grafana/grafana
@@ -182,7 +227,7 @@ services:
       # HTTPS
       - "3000:3000"
     environment:
-      - GF_SECURITY_ADMIN_PASSWORD=
+      - GF_SECURITY_ADMIN_PASSWORD=qwerty
       - GF_USERS_ALLOW_SIGN_UP=false
       - GF_SERVER_PROTOCOL=https
       - GF_SERVER_CERT_FILE=/etc/grafana/certs/grafana.crt

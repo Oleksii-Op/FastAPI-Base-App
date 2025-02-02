@@ -4,16 +4,16 @@ global:
   # scrape_timeout is set to the global default (10s).
 
 # Alertmanager configuration
-#alerting:
-#  alertmanagers:
-#    - static_configs:
-#        - targets:
-#          # - alertmanager:9093
+alerting:
+  alertmanagers:
+    - static_configs:
+        - targets:
+           - alertmanager:9093
 
 # Load rules once and periodically evaluate them according to the global 'evaluation_interval'.
 rule_files:
-  # - "first_rules.yml"
-  # - "second_rules.yml"
+  - /etc/prometheus/alertrules.postgres.yml
+  - /etc/prometheus/alertrules.redis.yml
 
 # A scrape configuration containing exactly one endpoint to scrape:
 # Here it's Prometheus itself.
@@ -22,9 +22,9 @@ scrape_configs:
   - job_name: 'prometheus'
 
     scrape_interval: 15s
-    metrics_path: /prometheus/metrics
+    metrics_path: /metrics
     static_configs:
-      - targets: ['localhost:9090']
+      - targets: ['prometheus:9090']
 
   - job_name: 'app'
 
@@ -40,9 +40,22 @@ scrape_configs:
       - targets:
         - node_exporter:9100
 
+  - job_name: postgres
+
+    static_configs:
+      - targets:
+        - pg_exporter:9187
+
   - job_name: cadvisor
 
     scrape_interval: 15s
     static_configs:
         - targets:
           - cadvisor:8080
+
+
+  - job_name: redis_exporter
+    scrape_interval: 15s
+    static_configs:
+      - targets:
+        - redis_exporter:9121
