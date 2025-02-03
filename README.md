@@ -29,6 +29,8 @@
 ![images/access_token](/images/access_token.png)
 ### FastAPI Endpoints Metrics
 ![images/endpoints_metrics.png](images/endpoints_metrics.png)
+### Prometheus Targets
+![images/prometheus_targets.png](images/prometheus_targets.png)
 ### Prometheus Host Metrics
 ![images/host_metrics.png](/images/host_metrics.png)
 ### Postgres Cluster Metrics
